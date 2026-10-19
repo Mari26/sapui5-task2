@@ -1,6 +1,38 @@
-<mvc:View controllerName="sapui5task2.controller.Main"
+<mvc:View 
+    controllerName="sapui5task2.controller.Main"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
+    xmlns="sap.m"
+    displayBlock="true">
     <Page id="page" title="{i18n>title}">
+    <content>
+            
+            <!-- Bind the Table items aggregation to the Books array in our JSON model -->
+            <Table id="booksTable" items="{/Books}" class="sapUiResponsiveMargin" width="auto">
+                <columns>
+                    <Column id="idColumn"><Text id="idText" text="ID" /></Column>
+                    <Column id="nameColumn"><Text id="nameText" text="Name" /></Column>
+                    <Column id="authorColumn"><Text id="authorText" text="Author" /></Column>
+                    <Column id="genreColumn"><Text id="genreText" text="Genre" /></Column>
+                    <Column id="releaseDateColumn"><Text id="releaseDateText" text="Release Date" /></Column>
+                    <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="Quantity" /></Column>
+                </columns>
+                
+                <items>
+                    <!-- Template that will be repeated for each book -->
+                    <ColumnListItem id="bookRow">
+                        <cells>
+                            <Text id="idCell" text="{ID}" />
+                            <Text id="nameCell" text="{Name}" />
+                            <Text id="authorCell" text="{Author}" />
+                            <Text id="genreCell" text="{Genre}" />
+                            <Text id="releaseDateCell" text="{ReleaseDate}" />
+                            <!-- ObjectNumber is great for displaying numeric quantities -->
+                            <ObjectNumber id="quantityCell" number="{AvailableQuantity}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+
+        </content>
     </Page>
 </mvc:View>
