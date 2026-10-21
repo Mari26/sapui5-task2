@@ -9,12 +9,12 @@
             <!-- Bind the Table items aggregation to the Books array in our JSON model -->
             <Table id="booksTable" items="{/Books}" class="sapUiResponsiveMargin" width="auto">
                 <columns>
-                    <Column id="idColumn"><Text id="idText" text="ID" /></Column>
-                    <Column id="nameColumn"><Text id="nameText" text="Name" /></Column>
-                    <Column id="authorColumn"><Text id="authorText" text="Author" /></Column>
-                    <Column id="genreColumn"><Text id="genreText" text="Genre" /></Column>
-                    <Column id="releaseDateColumn"><Text id="releaseDateText" text="Release Date" /></Column>
-                    <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="Quantity" /></Column>
+                    <Column id="idColumn"><Text id="idText" text="{i18n>columnId}" /></Column>
+                    <Column id="nameColumn"><Text id="nameText" text="{i18n>columnName}" /></Column>
+                    <Column id="authorColumn"><Text id="authorText" text="{i18n>columnAuthor}" /></Column>
+                    <Column id="genreColumn"><Text id="genreText" text="{i18n>columnGenre}" /></Column>
+                    <Column id="releaseDateColumn"><Text id="releaseDateText" text="{i18n>columnReleaseDate}" /></Column>
+                    <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="{i18n>columnQuantity}" /></Column>
                 </columns>
                 
                 <items>
@@ -25,8 +25,13 @@
                             <Text id="nameCell" text="{Name}" />
                             <Text id="authorCell" text="{Author}" />
                             <Text id="genreCell" text="{Genre}" />
-                            <Text id="releaseDateCell" text="{ReleaseDate}" />
-                            <!-- ObjectNumber is great for displaying numeric quantities -->
+
+                            <Text id="releaseDateCell" text="{
+                             path: 'ReleaseDate',
+                             type: 'sap.ui.model.type.Date',
+                             formatOptions: {style: 'medium'}
+                            }" />
+                            
                             <ObjectNumber id="quantityCell" number="{AvailableQuantity}" />
                         </cells>
                     </ColumnListItem>
