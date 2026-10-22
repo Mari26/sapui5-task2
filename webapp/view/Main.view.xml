@@ -5,30 +5,30 @@
     xmlns="sap.m"
     displayBlock="true">
     <Page id="page" title="{i18n>title}">
-    <content>
-            
+        <content>
             <!-- Bind the Table items aggregation to the Books array in our JSON model -->
             <Table id="booksTable" items="{/Books}" mode="MultiSelect" class="sapUiResponsiveMargin" width="auto">
 
-            <headerToolbar>
-            <Toolbar id="toolbar">
-            <!-- Title Input -->
-            <Input id="titleInput" placeholder="Filter by title" width="200px" />
-            
-            <!-- Genre Select (bind to unique genres) -->
-            <Select id="genreSelect" items="{/Genres}" width="150px">
-                <core:Item id="genreItem" key="{key}" text="{text}" />
-            </Select>
-            
-            <Button id="filterButton" text="Filter" press=".onFilter" type="Emphasized" />
-            
-            <!-- Separator and Add/Delete buttons -->
-            <ToolbarSeparator id="toolbarSeparator" />
-            
-            <Button id="addButton" text="Add Record" press=".onAddRecord" type="Accept" />
-            <Button id="deleteButton" text="Delete Record" press=".onDeleteRecord" type="Reject" />
-        </Toolbar>
-    </headerToolbar>
+                <headerToolbar>
+                    <Toolbar id="toolbar">
+                        <!-- Title Input -->
+                        <Input id="titleInput" placeholder="Filter by title" width="200px" />
+                        
+                        <!-- Genre Select (bind to unique genres) -->
+                        <Select id="genreSelect" items="{/Genres}" width="150px">
+                            <core:Item id="genreItem" key="{key}" text="{text}" />
+                        </Select>
+                        
+                        <Button id="filterButton" text="Filter" press=".onFilter" type="Emphasized" />
+                        
+                        <!-- Separator and Add/Delete buttons -->
+                        <ToolbarSeparator id="toolbarSeparator" />
+                        
+                        <Button id="addButton" text="Add Record" press=".onAddRecord" type="Accept" />
+                        <Button id="deleteButton" text="Delete Record" press=".onDeleteRecord" type="Reject" />
+                    </Toolbar>
+                </headerToolbar>
+
                 <columns>
                     <Column id="idColumn"><Text id="idText" text="{i18n>columnId}" /></Column>
                     <Column id="nameColumn"><Text id="nameText" text="{i18n>columnName}" /></Column>
@@ -36,6 +36,8 @@
                     <Column id="genreColumn"><Text id="genreText" text="{i18n>columnGenre}" /></Column>
                     <Column id="releaseDateColumn"><Text id="releaseDateText" text="{i18n>columnReleaseDate}" /></Column>
                     <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="{i18n>columnQuantity}" /></Column>
+                    <!-- New Actions Column -->
+                    <Column id="actionsColumn" hAlign="Center"><Text id="actionsText" text="Actions" /></Column>
                 </columns>
                 
                 <items>
@@ -43,22 +45,33 @@
                     <ColumnListItem id="bookRow">
                         <cells>
                             <Text id="idCell" text="{ID}" />
-                            <Text id="nameCell" text="{Name}" />
+                            
+                            <!-- Title Cell: Displays Text when editMode is false, Input when editMode is true -->
+                            <HBox id="nameBox">
+                                <Text id="nameCell" text="{Name}" visible="{= !${editMode} }" />
+                                <Input id="nameInput" value="{Name}" visible="{= !!${editMode} }" />
+                            </HBox>
+
                             <Text id="authorCell" text="{Author}" />
                             <Text id="genreCell" text="{Genre}" />
 
                             <Text id="releaseDateCell" text="{
-                             path: 'ReleaseDate',
-                             type: 'sap.ui.model.type.Date',
-                             formatOptions: {style: 'medium'}
+                                path: 'ReleaseDate',
+                                type: 'sap.ui.model.type.Date',
+                                formatOptions: {style: 'medium'}
                             }" />
                             
                             <ObjectNumber id="quantityCell" number="{AvailableQuantity}" />
+
+                            <!-- Actions Cell: Displays 'Edit Title' when editMode is false, 'Save' when editMode is true -->
+                            <HBox id="actionsBox" justifyContent="Center">
+                                <Button id="editButton" text="Edit Title" press=".onEditTitle" visible="{= !${editMode} }" />
+                                <Button id="saveButton" text="Save" press=".onSaveTitle" type="Emphasized" visible="{= !!${editMode} }" />
+                            </HBox>
                         </cells>
                     </ColumnListItem>
                 </items>
             </Table>
-
         </content>
     </Page>
 </mvc:View>
