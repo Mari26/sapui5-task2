@@ -1,13 +1,34 @@
 <mvc:View 
     controllerName="sapui5task2.controller.Main"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m"
     displayBlock="true">
     <Page id="page" title="{i18n>title}">
     <content>
             
             <!-- Bind the Table items aggregation to the Books array in our JSON model -->
-            <Table id="booksTable" items="{/Books}" class="sapUiResponsiveMargin" width="auto">
+            <Table id="booksTable" items="{/Books}" mode="MultiSelect" class="sapUiResponsiveMargin" width="auto">
+
+            <headerToolbar>
+            <Toolbar id="toolbar">
+            <!-- Title Input -->
+            <Input id="titleInput" placeholder="Filter by title" width="200px" />
+            
+            <!-- Genre Select (bind to unique genres) -->
+            <Select id="genreSelect" items="{/Genres}" width="150px">
+                <core:Item id="genreItem" key="{key}" text="{text}" />
+            </Select>
+            
+            <Button id="filterButton" text="Filter" press=".onFilter" type="Emphasized" />
+            
+            <!-- Separator and Add/Delete buttons -->
+            <ToolbarSeparator id="toolbarSeparator" />
+            
+            <Button id="addButton" text="Add Record" press=".onAddRecord" type="Accept" />
+            <Button id="deleteButton" text="Delete Record" press=".onDeleteRecord" type="Reject" />
+        </Toolbar>
+    </headerToolbar>
                 <columns>
                     <Column id="idColumn"><Text id="idText" text="{i18n>columnId}" /></Column>
                     <Column id="nameColumn"><Text id="nameText" text="{i18n>columnName}" /></Column>
