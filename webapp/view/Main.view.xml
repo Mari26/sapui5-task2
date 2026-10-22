@@ -1,6 +1,43 @@
-<mvc:View controllerName="sapui5task2.controller.Main"
+<mvc:View 
+    controllerName="sapui5task2.controller.Main"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
+    xmlns="sap.m"
+    displayBlock="true">
     <Page id="page" title="{i18n>title}">
+    <content>
+            
+            <!-- Bind the Table items aggregation to the Books array in our JSON model -->
+            <Table id="booksTable" items="{/Books}" class="sapUiResponsiveMargin" width="auto">
+                <columns>
+                    <Column id="idColumn"><Text id="idText" text="{i18n>columnId}" /></Column>
+                    <Column id="nameColumn"><Text id="nameText" text="{i18n>columnName}" /></Column>
+                    <Column id="authorColumn"><Text id="authorText" text="{i18n>columnAuthor}" /></Column>
+                    <Column id="genreColumn"><Text id="genreText" text="{i18n>columnGenre}" /></Column>
+                    <Column id="releaseDateColumn"><Text id="releaseDateText" text="{i18n>columnReleaseDate}" /></Column>
+                    <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="{i18n>columnQuantity}" /></Column>
+                </columns>
+                
+                <items>
+                    <!-- Template that will be repeated for each book -->
+                    <ColumnListItem id="bookRow">
+                        <cells>
+                            <Text id="idCell" text="{ID}" />
+                            <Text id="nameCell" text="{Name}" />
+                            <Text id="authorCell" text="{Author}" />
+                            <Text id="genreCell" text="{Genre}" />
+
+                            <Text id="releaseDateCell" text="{
+                             path: 'ReleaseDate',
+                             type: 'sap.ui.model.type.Date',
+                             formatOptions: {style: 'medium'}
+                            }" />
+                            
+                            <ObjectNumber id="quantityCell" number="{AvailableQuantity}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+
+        </content>
     </Page>
 </mvc:View>
