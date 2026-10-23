@@ -35,6 +35,8 @@
                     <Column id="genreColumn"><Text id="genreText" text="{i18n>columnGenre}" /></Column>
                     <Column id="releaseDateColumn"><Text id="releaseDateText" text="{i18n>columnReleaseDate}" /></Column>
                     <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="{i18n>columnQuantity}" /></Column>
+                    <!-- New Actions Column -->
+                    <Column id="actionsColumn" hAlign="Center"><Text id="actionsText" text="{i18n>columnActions}" /></Column>
                 </columns>
                 
                 <items>
@@ -42,7 +44,13 @@
                     <ColumnListItem id="bookRow">
                         <cells>
                             <Text id="idCell" text="{ID}" />
-                            <Text id="nameCell" text="{Name}" />
+                            
+                            <!-- Title Cell: Displays Text when editMode is false, Input when editMode is true -->
+                            <HBox id="nameBox">
+                                <Text id="nameCell" text="{Name}" visible="{= !${editMode} }" />
+                                <Input id="nameInput" value="{Name}" visible="{= !!${editMode} }" />
+                            </HBox>
+
                             <Text id="authorCell" text="{Author}" />
                             <Text id="genreCell" text="{Genre}" />
 
@@ -53,6 +61,12 @@
                             }" />
                             
                             <ObjectNumber id="quantityCell" number="{AvailableQuantity}" />
+
+                            <!-- Actions Cell: Displays 'Edit Title' when editMode is false, 'Save' when editMode is true -->
+                            <HBox id="actionsBox" justifyContent="Center">
+                                <Button id="editButton" text="{i18n>editTitleButtonText}" press=".onEditTitle" visible="{= !${editMode} }" />
+                                <Button id="saveButton" text="{i18n>saveButtonText}" press=".onSaveTitle" type="Emphasized" visible="{= !!${editMode} }" />
+                            </HBox>
                         </cells>
                     </ColumnListItem>
                 </items>
