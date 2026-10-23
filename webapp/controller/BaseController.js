@@ -12,6 +12,11 @@ sap.ui.define([
         // setting the view model
         setModel(oModel, sName) {
             return this.getView().setModel(oModel, sName);
+        },
+
+        //getting the resource bundle (i18n)
+        getResourceBundle() {
+            return this.getOwnerComponent().getModel("i18n").getResourceBundle();
         }
     });
-});
+}); 

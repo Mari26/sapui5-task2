@@ -1,5 +1,5 @@
 sap.ui.define([
-    "./BaseController", // Import BaseController
+    "./BaseController",
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator"
@@ -18,25 +18,25 @@ sap.ui.define([
                 ]
             };
 
+            // Read "All Genres" text from i18n resource bundle
+            const oBundle = this.getResourceBundle();
+            const sAllGenresText = oBundle.getText("allGenres");
+
             // Extract unique genres for the Select (Filter) control
             const aGenres = [...new Set(oData.Books.map(book => book.Genre))].map(genre => {
                 return { key: genre, text: genre };
             });
-            aGenres.unshift({ key: "", text: "All Genres" }); // Default "All Genres" option
+            aGenres.unshift({ key: "", text: sAllGenresText });
             oData.Genres = aGenres;
 
             const oModel = new JSONModel(oData);
-            // Set the model using the BaseController method
             this.setModel(oModel);
         },
 
-
         onAddRecord() {
-            // Access the model using the method from BaseController
             const oModel = this.getModel();
             const aBooks = oModel.getProperty("/Books");
             
-            // Add a new empty record to the end of the array
             aBooks.push({
                 ID: "", 
                 Name: "", 
@@ -46,7 +46,6 @@ sap.ui.define([
                 AvailableQuantity: 0
             });
             
-            // Update the model with the modified array
             oModel.setProperty("/Books", aBooks);
         },
 
@@ -54,7 +53,6 @@ sap.ui.define([
             const oTable = this.byId("booksTable");
             const aSelectedContexts = oTable.getSelectedContexts();
             
-            // Stop execution if no records are selected
             if (aSelectedContexts.length === 0) {
                 return;
             }
@@ -62,17 +60,14 @@ sap.ui.define([
             const oModel = this.getModel();
             const aBooks = oModel.getProperty("/Books");
             
-            // Extract indices of selected records and sort in descending order to prevent index shifting during deletion
             const aIndices = aSelectedContexts.map(oContext => {
                 return parseInt(oContext.getPath().split("/").pop(), 10);
             }).sort((a, b) => b - a);
             
-            // Remove selected records from the array
             aIndices.forEach(iIndex => {
                 aBooks.splice(iIndex, 1);
             });
             
-            // Update the model and clear table selections
             oModel.setProperty("/Books", aBooks);
             oTable.removeSelections(true);
         },
@@ -82,17 +77,14 @@ sap.ui.define([
             const sGenreQuery = this.byId("genreSelect").getSelectedKey();
             const aFilters = [];
 
-            // Add title filter (Contains condition)
             if (sTitleQuery) {
                 aFilters.push(new Filter("Name", FilterOperator.Contains, sTitleQuery));
             }
             
-            // Add genre filter (Equals condition)
             if (sGenreQuery) {
                 aFilters.push(new Filter("Genre", FilterOperator.EQ, sGenreQuery));
             }
 
-            // Apply filters to the table items binding
             const oTable = this.byId("booksTable");
             const oBinding = oTable.getBinding("items");
             oBinding.filter(aFilters);
