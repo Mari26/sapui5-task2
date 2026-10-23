@@ -8,24 +8,23 @@
         <content>
             <!-- Bind the Table items aggregation to the Books array in our JSON model -->
             <Table id="booksTable" items="{/Books}" mode="MultiSelect" class="sapUiResponsiveMargin" width="auto">
-
                 <headerToolbar>
                     <Toolbar id="toolbar">
                         <!-- Title Input -->
-                        <Input id="titleInput" placeholder="Filter by title" width="200px" />
+                        <Input id="titleInput" placeholder="{i18n>filterTitlePlaceholder}" width="200px" />
                         
                         <!-- Genre Select (bind to unique genres) -->
                         <Select id="genreSelect" items="{/Genres}" width="150px">
                             <core:Item id="genreItem" key="{key}" text="{text}" />
                         </Select>
                         
-                        <Button id="filterButton" text="Filter" press=".onFilter" type="Emphasized" />
+                        <Button id="filterButton" text="{i18n>filterButtonText}" press=".onFilter" type="Emphasized" />
                         
                         <!-- Separator and Add/Delete buttons -->
                         <ToolbarSeparator id="toolbarSeparator" />
                         
-                        <Button id="addButton" text="Add Record" press=".onAddRecord" type="Accept" />
-                        <Button id="deleteButton" text="Delete Record" press=".onDeleteRecord" type="Reject" />
+                        <Button id="addButton" text="{i18n>addRecordButtonText}" press=".onAddRecord" type="Accept" />
+                        <Button id="deleteButton" text="{i18n>deleteRecordButtonText}" press=".onDeleteRecord" type="Reject" />
                     </Toolbar>
                 </headerToolbar>
 

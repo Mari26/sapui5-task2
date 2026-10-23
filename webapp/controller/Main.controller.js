@@ -1,5 +1,5 @@
 sap.ui.define([
-    "./BaseController", 
+    "./BaseController",
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator"
@@ -18,23 +18,25 @@ sap.ui.define([
                 ]
             };
 
+            // Read "All Genres" text from i18n resource bundle
+            const oBundle = this.getResourceBundle();
+            const sAllGenresText = oBundle.getText("allGenres");
+
             // Extract unique genres for the Select (Filter) control
             const aGenres = [...new Set(oData.Books.map(book => book.Genre))].map(genre => {
                 return { key: genre, text: genre };
             });
-            aGenres.unshift({ key: "", text: "All Genres" }); // Default "All Genres" option
+            aGenres.unshift({ key: "", text: sAllGenresText });
             oData.Genres = aGenres;
 
             const oModel = new JSONModel(oData);
-            // Set the model using the BaseController method
             this.setModel(oModel);
         },
 
         onAddRecord() {
             const oModel = this.getModel();
             const aBooks = oModel.getProperty("/Books");
-            
-            // Add a new empty record with editMode set to false
+          
             aBooks.push({
                 ID: "", 
                 Name: "", 
@@ -59,7 +61,6 @@ sap.ui.define([
             const oModel = this.getModel();
             const aBooks = oModel.getProperty("/Books");
             
-            // Extract indices of selected records and sort in descending order to prevent index shifting during deletion
             const aIndices = aSelectedContexts.map(oContext => {
                 return parseInt(oContext.getPath().split("/").pop(), 10);
             }).sort((a, b) => b - a);
