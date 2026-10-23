@@ -36,7 +36,7 @@
                     <Column id="releaseDateColumn"><Text id="releaseDateText" text="{i18n>columnReleaseDate}" /></Column>
                     <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="{i18n>columnQuantity}" /></Column>
                     <!-- New Actions Column -->
-                    <Column id="actionsColumn" hAlign="Center"><Text id="actionsText" text="Actions" /></Column>
+                    <Column id="actionsColumn" hAlign="Center"><Text id="actionsText" text="{i18n>columnActions}" /></Column>
                 </columns>
                 
                 <items>
@@ -64,8 +64,8 @@
 
                             <!-- Actions Cell: Displays 'Edit Title' when editMode is false, 'Save' when editMode is true -->
                             <HBox id="actionsBox" justifyContent="Center">
-                                <Button id="editButton" text="Edit Title" press=".onEditTitle" visible="{= !${editMode} }" />
-                                <Button id="saveButton" text="Save" press=".onSaveTitle" type="Emphasized" visible="{= !!${editMode} }" />
+                                <Button id="editButton" text="{i18n>editTitleButtonText}" press=".onEditTitle" visible="{= !${editMode} }" />
+                                <Button id="saveButton" text="{i18n>saveButtonText}" press=".onSaveTitle" type="Emphasized" visible="{= !!${editMode} }" />
                             </HBox>
                         </cells>
                     </ColumnListItem>
