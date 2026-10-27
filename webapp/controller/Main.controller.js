@@ -50,17 +50,32 @@ sap.ui.define([
             oModel.setProperty("/Books", aBooks);
         },
 
-        onDeleteRecord() {
+         // Open confirmation dialog when 'Delete Record' button is pressed
+        async onDeleteRecord() {
             const oTable = this.byId("booksTable");
             const aSelectedContexts = oTable.getSelectedContexts();
             
+            // If no records are selected, do not open the dialog
             if (aSelectedContexts.length === 0) {
                 return;
             }
 
+            // Lazy load the confirmation dialog fragment
+            this.oDeleteDialog ??= await this.loadFragment({
+                name: "sapui5task2.view.fragments.DeleteConfirmationDialog"
+            });
+
+            this.oDeleteDialog.open();
+        },
+
+        // Triggered on 'Yes' button click inside the confirmation dialog
+        onConfirmDelete() {
+            const oTable = this.byId("booksTable");
+            const aSelectedContexts = oTable.getSelectedContexts();
             const oModel = this.getModel();
             const aBooks = oModel.getProperty("/Books");
             
+            // Extract indices of selected records and sort in descending order
             const aIndices = aSelectedContexts.map(oContext => {
                 return parseInt(oContext.getPath().split("/").pop(), 10);
             }).sort((a, b) => b - a);
@@ -71,6 +86,14 @@ sap.ui.define([
             
             oModel.setProperty("/Books", aBooks);
             oTable.removeSelections(true);
+
+            // Close the dialog after deletion
+            this.oDeleteDialog.close();
+        },
+
+        // Triggered on 'No' button click inside the confirmation dialog
+        onCloseDeleteDialog() {
+            this.oDeleteDialog.close();
         },
 
         onFilter() {
@@ -91,13 +114,11 @@ sap.ui.define([
             oBinding.filter(aFilters);
         },
 
-        // Enable edit mode for the specific row where the button was pressed
         onEditTitle(oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
             this.getModel().setProperty(oContext.getPath() + "/editMode", true);
         },
 
-        // Save changes and switch the row back to display mode
         onSaveTitle(oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
             this.getModel().setProperty(oContext.getPath() + "/editMode", false);

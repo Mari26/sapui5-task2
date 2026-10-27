@@ -1,0 +1,25 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Dialog
+        id="deleteConfirmDialog"
+        title="{i18n>confirmDeleteTitle}"
+        type="Message">
+        <content>
+            <Text id="confirmDeleteMessage" text="{i18n>confirmDeleteText}" />
+        </content>
+        <beginButton>
+            <Button
+                id="confirmYesButton"
+                text="{i18n>yesButtonText}"
+                type="Emphasized"
+                press=".onConfirmDelete" />
+        </beginButton>
+        <endButton>
+            <Button
+                id="confirmNoButton"
+                text="{i18n>noButtonText}"
+                press=".onCloseDeleteDialog" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
