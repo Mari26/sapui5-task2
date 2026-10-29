@@ -1,0 +1,74 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+    <Dialog
+        id="addBookDialog"
+        title="{i18n>addBookDialogTitle}"
+        contentWidth="400px">
+        <content>
+            <f:SimpleForm
+                id="addBookForm"
+                editable="true"
+                layout="ResponsiveGridLayout">
+                <f:content>
+                    <Label id="idLabel" text="{i18n>columnId}" required="true" />
+                    <Input
+                        id="newIdInput"
+                        value="{/NewBook/ID}"
+                        valueState="{/Validation/ID}"
+                        valueStateText="{i18n>requiredFieldText}" />
+
+                    <Label id="nameLabel" text="{i18n>columnName}" required="true" />
+                    <Input
+                        id="newNameInput"
+                        value="{/NewBook/Name}"
+                        valueState="{/Validation/Name}"
+                        valueStateText="{i18n>requiredFieldText}" />
+
+                    <Label id="authorLabel" text="{i18n>columnAuthor}" required="true" />
+                    <Input
+                        id="newAuthorInput"
+                        value="{/NewBook/Author}"
+                        valueState="{/Validation/Author}"
+                        valueStateText="{i18n>requiredFieldText}" />
+
+                    <Label id="genreLabel" text="{i18n>columnGenre}" required="true" />
+                    <Input
+                        id="newGenreInput"
+                        value="{/NewBook/Genre}"
+                        valueState="{/Validation/Genre}"
+                        valueStateText="{i18n>requiredFieldText}" />
+
+                    <Label id="releaseDateLabel" text="{i18n>columnReleaseDate}" required="true" />
+                    <DatePicker
+                        id="newReleaseDatePicker"
+                        dateValue="{/NewBook/ReleaseDate}"
+                        valueState="{/Validation/ReleaseDate}"
+                        valueStateText="{i18n>requiredFieldText}" />
+
+                    <Label id="quantityLabel" text="{i18n>columnQuantity}" required="true" />
+                    <Input
+                        id="newQuantityInput"
+                        type="Number"
+                        value="{/NewBook/AvailableQuantity}"
+                        valueState="{/Validation/AvailableQuantity}"
+                        valueStateText="{i18n>quantityInvalidText}" />
+                </f:content>
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button
+                id="confirmAddBookButton"
+                text="{i18n>addButtonText}"
+                type="Emphasized"
+                press=".onConfirmAddBook" />
+        </beginButton>
+        <endButton>
+            <Button
+                id="cancelAddBookButton"
+                text="{i18n>cancelButtonText}"
+                press=".onCancelAddBook" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
