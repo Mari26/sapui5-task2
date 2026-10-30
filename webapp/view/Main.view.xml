@@ -6,71 +6,122 @@
     displayBlock="true">
     <Page id="page" title="{i18n>title}">
         <content>
-            <!-- Bind the Table items aggregation to the Books array in our JSON model -->
-            <Table id="booksTable" items="{/Books}" mode="MultiSelect" class="sapUiResponsiveMargin" width="auto">
-                <headerToolbar>
-                    <Toolbar id="toolbar">
-                        <!-- Title Input -->
-                        <Input id="titleInput" placeholder="{i18n>filterTitlePlaceholder}" width="200px" />
-                        
-                        <!-- Genre Select (bind to unique genres) -->
-                        <Select id="genreSelect" items="{/Genres}" width="150px">
-                            <core:Item id="genreItem" key="{key}" text="{text}" />
-                        </Select>
-                        
-                        <Button id="filterButton" text="{i18n>filterButtonText}" press=".onFilter" type="Emphasized" />
-                        
-                        <!-- Separator and Add/Delete buttons -->
-                        <ToolbarSeparator id="toolbarSeparator" />
-                        
-                        <Button id="addButton" text="{i18n>addRecordButtonText}" press=".onAddRecord" type="Accept" />
-                        <Button id="deleteButton" text="{i18n>deleteRecordButtonText}" press=".onDeleteRecord" type="Reject" />
-                    </Toolbar>
-                </headerToolbar>
-
-                <columns>
-                    <Column id="idColumn"><Text id="idText" text="{i18n>columnId}" /></Column>
-                    <Column id="nameColumn"><Text id="nameText" text="{i18n>columnName}" /></Column>
-                    <Column id="authorColumn"><Text id="authorText" text="{i18n>columnAuthor}" /></Column>
-                    <Column id="genreColumn"><Text id="genreText" text="{i18n>columnGenre}" /></Column>
-                    <Column id="releaseDateColumn"><Text id="releaseDateText" text="{i18n>columnReleaseDate}" /></Column>
-                    <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="{i18n>columnQuantity}" /></Column>
-                    <!-- New Actions Column -->
-                    <Column id="actionsColumn" hAlign="Center"><Text id="actionsText" text="{i18n>columnActions}" /></Column>
-                </columns>
-                
+            <IconTabBar id="idIconTabBar" class="sapUiResponsiveContentPadding">
                 <items>
-                    <!-- Template that will be repeated for each book -->
-                    <ColumnListItem id="bookRow">
-                        <cells>
-                            <Text id="idCell" text="{ID}" />
+                    <!-- Tab 1: JSON Model -->
+                    <IconTabFilter id="jsonModelTab" text="{i18n>tabJsonModel}" key="json">
+                        <Table id="booksTable" items="{/Books}" mode="MultiSelect" width="auto">
+                            <headerToolbar>
+                                <Toolbar id="toolbar">
+                                    <Input id="titleInput" placeholder="{i18n>filterTitlePlaceholder}" width="200px" />
+                                    <Select id="genreSelect" items="{/Genres}" width="150px">
+                                        <core:Item id="genreItem" key="{key}" text="{text}" />
+                                    </Select>
+                                    <Button id="filterButton" text="{i18n>filterButtonText}" press=".onFilter" type="Emphasized" />
+                                    <ToolbarSeparator id="toolbarSeparator" />
+                                    <Button id="addButton" text="{i18n>addRecordButtonText}" press=".onAddRecord" type="Accept" />
+                                    <Button id="deleteButton" text="{i18n>deleteRecordButtonText}" press=".onDeleteRecord" type="Reject" />
+                                </Toolbar>
+                            </headerToolbar>
+
+                            <columns>
+                                <Column id="idColumn"><Text id="idText" text="{i18n>columnId}" /></Column>
+                                <Column id="nameColumn"><Text id="nameText" text="{i18n>columnName}" /></Column>
+                                <Column id="authorColumn"><Text id="authorText" text="{i18n>columnAuthor}" /></Column>
+                                <Column id="genreColumn"><Text id="genreText" text="{i18n>columnGenre}" /></Column>
+                                <Column id="releaseDateColumn"><Text id="releaseDateText" text="{i18n>columnReleaseDate}" /></Column>
+                                <Column id="quantityColumn" hAlign="End"><Text id="quantityText" text="{i18n>columnQuantity}" /></Column>
+                                <Column id="actionsColumn" hAlign="Center"><Text id="actionsText" text="{i18n>columnActions}" /></Column>
+                            </columns>
                             
-                            <!-- Title Cell: Displays Text when editMode is false, Input when editMode is true -->
-                            <HBox id="nameBox">
-                                <Text id="nameCell" text="{Name}" visible="{= !${editMode} }" />
-                                <Input id="nameInput" value="{Name}" visible="{= !!${editMode} }" />
-                            </HBox>
+                            <items>
+                                <ColumnListItem id="bookRow">
+                                    <cells>
+                                        <Text id="idCell" text="{ID}" />
+                                        <HBox id="nameBox">
+                                            <Text id="nameCell" text="{Name}" visible="{= !${editMode} }" />
+                                            <Input id="nameInput" value="{Name}" visible="{= !!${editMode} }" />
+                                        </HBox>
+                                        <Text id="authorCell" text="{Author}" />
+                                        <Text id="genreCell" text="{Genre}" />
+                                        <Text id="releaseDateCell" text="{
+                                            path: 'ReleaseDate',
+                                            formatter: '.formatter.formatReleaseYear'
+                                        }" />
+                                        <ObjectNumber id="quantityCell" number="{AvailableQuantity}" />
+                                        <HBox id="actionsBox" justifyContent="Center">
+                                            <Button id="editButton" text="{i18n>editTitleButtonText}" press=".onEditTitle" visible="{= !${editMode} }" />
+                                            <Button id="saveButton" text="{i18n>saveButtonText}" press=".onSaveTitle" type="Emphasized" visible="{= !!${editMode} }" />
+                                        </HBox>
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </IconTabFilter>
 
-                            <Text id="authorCell" text="{Author}" />
-                            <Text id="genreCell" text="{Genre}" />
+                    <!-- Tab 2: oData v2 Model -->
+                    <IconTabFilter id="odataV2Tab" text="{i18n>tabODataV2Model}" key="odataV2">
+                        <Table id="productsV2Table" items="{odataV2>/Products}" width="auto">
+                            <columns>
+                                <Column id="v2IdCol"><Text id="v2IdText" text="{i18n>columnId}" /></Column>
+                                <Column id="v2NameCol"><Text id="v2NameText" text="{i18n>columnName}" /></Column>
+                                <Column id="v2DescCol"><Text id="v2DescText" text="{i18n>columnDescription}" /></Column>
+                                <Column id="v2RelDateCol"><Text id="v2RelDateText" text="{i18n>columnReleaseDate}" /></Column>
+                                <Column id="v2DiscDateCol"><Text id="v2DiscDateText" text="{i18n>columnDiscontinuedDate}" /></Column>
+                                <Column id="v2RatingCol" hAlign="End"><Text id="v2RatingText" text="{i18n>columnRating}" /></Column>
+                                <Column id="v2PriceCol" hAlign="End"><Text id="v2PriceText" text="{i18n>columnPrice}" /></Column>
+                            </columns>
+                            <items>
+                                <ColumnListItem id="v2ProductRow">
+                                    <cells>
+                                        <Text id="v2IdCell" text="{odataV2>ID}" />
+                                        <Text id="v2NameCell" text="{odataV2>Name}" />
+                                        <Text id="v2DescCell" text="{odataV2>Description}" />
+                                        <Text id="v2RelDateCell" text="{
+                                            path: 'odataV2>ReleaseDate',
+                                            type: 'sap.ui.model.type.Date'
+                                        }" />
+                                        <Text id="v2DiscDateCell" text="{
+                                            path: 'odataV2>DiscontinuedDate',
+                                            type: 'sap.ui.model.type.Date'
+                                        }" />
+                                        <ObjectNumber id="v2RatingCell" number="{odataV2>Rating}" />
+                                        <ObjectNumber id="v2PriceCell" number="{odataV2>Price}" />
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </IconTabFilter>
 
-                              <!-- Release Date formatted using custom formatter -->
-                            <Text id="releaseDateCell" text="{
-                                path: 'ReleaseDate',
-                                formatter: '.formatter.formatReleaseYear'
-                            }" />
-                            
-                            <ObjectNumber id="quantityCell" number="{AvailableQuantity}" />
-
-                            <!-- Actions Cell: Displays 'Edit Title' when editMode is false, 'Save' when editMode is true -->
-                            <HBox id="actionsBox" justifyContent="Center">
-                                <Button id="editButton" text="{i18n>editTitleButtonText}" press=".onEditTitle" visible="{= !${editMode} }" />
-                                <Button id="saveButton" text="{i18n>saveButtonText}" press=".onSaveTitle" type="Emphasized" visible="{= !!${editMode} }" />
-                            </HBox>
-                        </cells>
-                    </ColumnListItem>
+                    <!-- Tab 3: oData v4 Model -->
+                    <IconTabFilter id="odataV4Tab" text="{i18n>tabODataV4Model}" key="odataV4">
+                        <Table id="productsV4Table" items="{odataV4>/Products}" width="auto">
+                            <columns>
+                                <Column id="v4IdCol"><Text id="v4IdText" text="{i18n>columnId}" /></Column>
+                                <Column id="v4NameCol"><Text id="v4NameText" text="{i18n>columnName}" /></Column>
+                                <Column id="v4DescCol"><Text id="v4DescText" text="{i18n>columnDescription}" /></Column>
+                                <Column id="v4RelDateCol"><Text id="v4RelDateText" text="{i18n>columnReleaseDate}" /></Column>
+                                <Column id="v4DiscDateCol"><Text id="v4DiscDateText" text="{i18n>columnDiscontinuedDate}" /></Column>
+                                <Column id="v4RatingCol" hAlign="End"><Text id="v4RatingText" text="{i18n>columnRating}" /></Column>
+                                <Column id="v4PriceCol" hAlign="End"><Text id="v4PriceText" text="{i18n>columnPrice}" /></Column>
+                            </columns>
+                            <items>
+                                <ColumnListItem id="v4ProductRow">
+                                    <cells>
+                                        <Text id="v4IdCell" text="{odataV4>ID}" />
+                                        <Text id="v4NameCell" text="{odataV4>Name}" />
+                                        <Text id="v4DescCell" text="{odataV4>Description}" />
+                                        <Text id="v4RelDateCell" text="{odataV4>ReleaseDate}" />
+                                        <Text id="v4DiscDateCell" text="{odataV4>DiscontinuedDate}" />
+                                        <ObjectNumber id="v4RatingCell" number="{odataV4>Rating}" />
+                                        <ObjectNumber id="v4PriceCell" number="{odataV4>Price}" />
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </IconTabFilter>
                 </items>
-            </Table>
+            </IconTabBar>
         </content>
     </Page>
 </mvc:View>
