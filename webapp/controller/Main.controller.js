@@ -5,8 +5,9 @@ sap.ui.define([
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
     "sap/ui/core/library",
-    "../model/formatter"
-], function (BaseController, JSONModel, Filter, FilterOperator, MessageToast, coreLibrary, formatter) {
+    "../model/formatter",
+    "sap/m/MessageBox"
+], function (BaseController, JSONModel, Filter, FilterOperator, MessageToast, coreLibrary, formatter, MessageBox) {
     "use strict";
 
     const { ValueState } = coreLibrary;
@@ -208,6 +209,50 @@ sap.ui.define([
         onSaveTitle(oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
             this.getModel().setProperty(oContext.getPath() + "/editMode", false);
-        }
+        },
+
+       onDeleteV2Records() {
+            const oTable = this.byId("productsV2Table");
+            const aSelectedContexts = oTable.getSelectedContexts();
+            const oResourceBundle = this.getResourceBundle();
+
+            if (aSelectedContexts.length === 0) {
+                MessageBox.warning(oResourceBundle.getText("noSelectionWarning"));
+                return;
+            }
+
+            const oModel = this.getModel("odataV2");
+            const sGroupId = "deleteBatchGroup";
+
+            const aDeferredGroups = oModel.getDeferredGroups();
+            if (!aDeferredGroups.includes(sGroupId)) {
+                oModel.setDeferredGroups(aDeferredGroups.concat([sGroupId]));
+            }
+
+            aSelectedContexts.forEach((oContext) => {
+                oModel.remove(oContext.getPath(), {
+                    groupId: sGroupId
+                });
+            });
+
+            oModel.submitChanges({
+                groupId: sGroupId,
+                success: (oData) => {
+                    const bHasError = oData.__batchResponses && oData.__batchResponses.some((oResponse) => {
+                        return oResponse.response && oResponse.response.statusCode >= "400";
+                    });
+
+                    if (bHasError) {
+                        MessageBox.error(oResourceBundle.getText("deleteErrorMessage"));
+                    } else {
+                        MessageToast.show(oResourceBundle.getText("deleteSuccessMessage", [aSelectedContexts.length]));
+                        oTable.removeSelections(true);
+                    }
+                },
+                error: () => {
+                    MessageBox.error(oResourceBundle.getText("deleteErrorMessage"));
+                }
+            });
+        } 
     });
 });

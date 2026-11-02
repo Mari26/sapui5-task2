@@ -77,7 +77,7 @@
         "settings": {
           "defaultBindingMode": "TwoWay",
           "defaultCountMode": "Inline",
-          "useBatch": false
+          "useBatch": true
         }
       },
       "odataV4": {
