@@ -253,6 +253,131 @@ sap.ui.define([
                     MessageBox.error(oResourceBundle.getText("deleteErrorMessage"));
                 }
             });
-        } 
+        },
+        
+        async onOpenAddV2Dialog() {
+            // Creating an empty local JSON model for the dialog fields
+            const oNewProductModel = new JSONModel({
+                ID: "",
+                Name: "",
+                Description: "",
+                ReleaseDate: null,
+                DiscontinuedDate: null,
+                Rating: "",
+                Price: ""
+            });
+            this.setModel(oNewProductModel, "newProductV2");
+
+            // Lazy Loading: We load the fragment only on its first opening
+            if (!this.oAddV2Dialog) {
+                this.oAddV2Dialog = await this.loadFragment({
+                    name: "sapui5task2.view.fragments.AddProductV2"
+                });
+            }
+
+            this._resetV2DialogValueStates();
+            this.oAddV2Dialog.open();
+        },
+
+        onV2InputLiveChange(oEvent) {
+            const oInput = oEvent.getSource();
+            const sValue = oInput.getValue ? oInput.getValue().trim() : "";
+
+            if (sValue) {
+                oInput.setValueState(ValueState.None);
+                oInput.setValueStateText("");
+            } else {
+                oInput.setValueState(ValueState.Error);
+                oInput.setValueStateText(this.getResourceBundle().getText("fieldRequiredError"));
+            }
+        },
+
+        _validateV2DialogInputs() {
+            const aInputIds = [
+                "inpV2Id",
+                "inpV2Name",
+                "inpV2Desc",
+                "inpV2RelDate",
+                "inpV2DiscDate",
+                "inpV2Rating",
+                "inpV2Price"
+            ];
+            const sErrorText = this.getResourceBundle().getText("fieldRequiredError");
+            let bIsValid = true;
+
+            aInputIds.forEach((sId) => {
+                const oControl = this.byId(sId);
+                const sValue = oControl.getValue().trim();
+
+                if (!sValue) {
+                    oControl.setValueState(ValueState.Error);
+                    oControl.setValueStateText(sErrorText);
+                    bIsValid = false;
+                } else {
+                    oControl.setValueState(ValueState.None);
+                    oControl.setValueStateText("");
+                }
+            });
+
+            return bIsValid;
+        },
+
+        _resetV2DialogValueStates() {
+            const aInputIds = [
+                "inpV2Id",
+                "inpV2Name",
+                "inpV2Desc",
+                "inpV2RelDate",
+                "inpV2DiscDate",
+                "inpV2Rating",
+                "inpV2Price"
+            ];
+
+            aInputIds.forEach((sId) => {
+                const oControl = this.byId(sId);
+                if (oControl) {
+                    oControl.setValueState(ValueState.None);
+                    oControl.setValueStateText("");
+                }
+            });
+        },
+
+        onSaveV2Product() {
+            // 1. Checking validation: if any field is empty, stop the saving process
+            if (!this._validateV2DialogInputs()) {
+                return;
+            }
+
+            const oResourceBundle = this.getResourceBundle();
+            const oRawData = this.getModel("newProductV2").getData();
+            const oODataV2Model = this.getModel("odataV2");
+
+            // 2. Preparing the payload strictly according to the metadataV2.xml types
+            const oPayload = {
+                ID: parseInt(oRawData.ID, 10),
+                Name: oRawData.Name.trim(),
+                Description: oRawData.Description.trim(),
+                ReleaseDate: oRawData.ReleaseDate,
+                DiscontinuedDate: oRawData.DiscontinuedDate,
+                Rating: parseInt(oRawData.Rating, 10),
+                Price: parseFloat(oRawData.Price).toFixed(2)
+            };
+
+            // 3. Sending a POST request to the OData V2 server
+            oODataV2Model.create("/Products", oPayload, {
+                success: () => {
+                    MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
+                    this.oAddV2Dialog.close();
+                },
+                error: () => {
+                    MessageBox.error(oResourceBundle.getText("createErrorMessage"));
+                }
+            });
+        },
+
+        onCancelV2Product() {
+            this._resetV2DialogValueStates();
+            this.oAddV2Dialog.close();
+        }
     });
 });
