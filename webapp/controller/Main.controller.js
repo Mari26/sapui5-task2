@@ -12,6 +12,16 @@ sap.ui.define([
 
     const { ValueState } = coreLibrary;
 
+    const aV2InputIds = [
+        "inpV2Id",
+        "inpV2Name",
+        "inpV2Desc",
+        "inpV2RelDate",
+        "inpV2DiscDate",
+        "inpV2Rating",
+        "inpV2Price"
+    ];
+
     return BaseController.extend("sapui5task2.controller.Main", {
         formatter: formatter,
         onInit() {
@@ -278,38 +288,33 @@ sap.ui.define([
             this._resetV2DialogValueStates();
             this.oAddV2Dialog.open();
         },
-
+// Live validation for each input field in the Add Product V2 dialog
         onV2InputLiveChange(oEvent) {
-            const oInput = oEvent.getSource();
-            const sValue = oInput.getValue ? oInput.getValue().trim() : "";
+            const oControl = oEvent.getSource();
+            const bEmpty = oControl.isA("sap.m.DatePicker")
+                ? !oEvent.getParameter("valid") || !oControl.getDateValue()
+                : !oControl.getValue().trim();
 
-            if (sValue) {
-                oInput.setValueState(ValueState.None);
-                oInput.setValueStateText("");
+            if (bEmpty) {
+                oControl.setValueState(ValueState.Error);
+                oControl.setValueStateText(this.getResourceBundle().getText("fieldRequiredError"));
             } else {
-                oInput.setValueState(ValueState.Error);
-                oInput.setValueStateText(this.getResourceBundle().getText("fieldRequiredError"));
+                oControl.setValueState(ValueState.None);
+                oControl.setValueStateText("");
             }
         },
 
         _validateV2DialogInputs() {
-            const aInputIds = [
-                "inpV2Id",
-                "inpV2Name",
-                "inpV2Desc",
-                "inpV2RelDate",
-                "inpV2DiscDate",
-                "inpV2Rating",
-                "inpV2Price"
-            ];
             const sErrorText = this.getResourceBundle().getText("fieldRequiredError");
             let bIsValid = true;
 
-            aInputIds.forEach((sId) => {
+            aV2InputIds.forEach((sId) => {
                 const oControl = this.byId(sId);
-                const sValue = oControl.getValue().trim();
+                const bEmpty = oControl.isA("sap.m.DatePicker")
+                    ? !oControl.getDateValue()
+                    : !oControl.getValue().trim();
 
-                if (!sValue) {
+                if (bEmpty) {
                     oControl.setValueState(ValueState.Error);
                     oControl.setValueStateText(sErrorText);
                     bIsValid = false;
@@ -323,17 +328,7 @@ sap.ui.define([
         },
 
         _resetV2DialogValueStates() {
-            const aInputIds = [
-                "inpV2Id",
-                "inpV2Name",
-                "inpV2Desc",
-                "inpV2RelDate",
-                "inpV2DiscDate",
-                "inpV2Rating",
-                "inpV2Price"
-            ];
-
-            aInputIds.forEach((sId) => {
+            aV2InputIds.forEach((sId) => {
                 const oControl = this.byId(sId);
                 if (oControl) {
                     oControl.setValueState(ValueState.None);
