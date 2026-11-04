@@ -265,9 +265,10 @@ sap.ui.define([
             });
         },
         
-        async onOpenAddV2Dialog() {
-            // Creating an empty local JSON model for the dialog fields
+       async onOpenAddV2Dialog() {
             const oNewProductModel = new JSONModel({
+                isEdit: false,
+                sPath: "",
                 ID: "",
                 Name: "",
                 Description: "",
@@ -278,7 +279,6 @@ sap.ui.define([
             });
             this.setModel(oNewProductModel, "newProductV2");
 
-            // Lazy Loading: We load the fragment only on its first opening
             if (!this.oAddV2Dialog) {
                 this.oAddV2Dialog = await this.loadFragment({
                     name: "sapui5task2.view.fragments.AddProductV2"
@@ -288,7 +288,34 @@ sap.ui.define([
             this._resetV2DialogValueStates();
             this.oAddV2Dialog.open();
         },
-// Live validation for each input field in the Add Product V2 dialog
+
+        async onOpenEditV2Dialog(oEvent) {
+            const oBindingContext = oEvent.getSource().getBindingContext("odataV2");
+            const oRowData = oBindingContext.getObject();
+
+            const oEditProductModel = new JSONModel({
+                isEdit: true,
+                sPath: oBindingContext.getPath(),
+                ID: String(oRowData.ID),
+                Name: oRowData.Name,
+                Description: oRowData.Description,
+                ReleaseDate: oRowData.ReleaseDate ? new Date(oRowData.ReleaseDate) : null,
+                DiscontinuedDate: oRowData.DiscontinuedDate ? new Date(oRowData.DiscontinuedDate) : null,
+                Rating: String(oRowData.Rating),
+                Price: String(oRowData.Price)
+            });
+            this.setModel(oEditProductModel, "newProductV2");
+
+            if (!this.oAddV2Dialog) {
+                this.oAddV2Dialog = await this.loadFragment({
+                    name: "sapui5task2.view.fragments.AddProductV2"
+                });
+            }
+
+            this._resetV2DialogValueStates();
+            this.oAddV2Dialog.open();
+        },
+
         onV2InputLiveChange(oEvent) {
             const oControl = oEvent.getSource();
             const bEmpty = oControl.isA("sap.m.DatePicker")
@@ -338,36 +365,47 @@ sap.ui.define([
         },
 
         onSaveV2Product() {
-            // 1. Checking validation: if any field is empty, stop the saving process
             if (!this._validateV2DialogInputs()) {
                 return;
             }
 
             const oResourceBundle = this.getResourceBundle();
-            const oRawData = this.getModel("newProductV2").getData();
+            const oDialogData = this.getModel("newProductV2").getData();
             const oODataV2Model = this.getModel("odataV2");
 
-            // 2. Preparing the payload strictly according to the metadataV2.xml types
             const oPayload = {
-                ID: parseInt(oRawData.ID, 10),
-                Name: oRawData.Name.trim(),
-                Description: oRawData.Description.trim(),
-                ReleaseDate: oRawData.ReleaseDate,
-                DiscontinuedDate: oRawData.DiscontinuedDate,
-                Rating: parseInt(oRawData.Rating, 10),
-                Price: parseFloat(oRawData.Price).toFixed(2)
+                ID: parseInt(oDialogData.ID, 10),
+                Name: oDialogData.Name.trim(),
+                Description: oDialogData.Description.trim(),
+                ReleaseDate: oDialogData.ReleaseDate,
+                DiscontinuedDate: oDialogData.DiscontinuedDate,
+                Rating: parseInt(oDialogData.Rating, 10),
+                Price: parseFloat(oDialogData.Price).toFixed(2)
             };
 
-            // 3. Sending a POST request to the OData V2 server
-            oODataV2Model.create("/Products", oPayload, {
-                success: () => {
-                    MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
-                    this.oAddV2Dialog.close();
-                },
-                error: () => {
-                    MessageBox.error(oResourceBundle.getText("createErrorMessage"));
-                }
-            });
+            if (oDialogData.isEdit) {
+                oODataV2Model.update(oDialogData.sPath, oPayload, {
+                    success: () => {
+                        MessageToast.show(oResourceBundle.getText("updateSuccessMessage"));
+                        this.oAddV2Dialog.close();
+                        this.byId("productsV2Table").getBinding("items").refresh();
+                    },
+                    error: () => {
+                        MessageBox.error(oResourceBundle.getText("updateErrorMessage"));
+                    }
+                });
+            } else {
+                oODataV2Model.create("/Products", oPayload, {
+                    success: () => {
+                        MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
+                        this.oAddV2Dialog.close();
+                        this.byId("productsV2Table").getBinding("items").refresh();
+                    },
+                    error: () => {
+                        MessageBox.error(oResourceBundle.getText("createErrorMessage"));
+                    }
+                });
+            }
         },
 
         onCancelV2Product() {

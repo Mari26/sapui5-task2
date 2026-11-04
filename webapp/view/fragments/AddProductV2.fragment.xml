@@ -4,7 +4,7 @@
     xmlns:f="sap.ui.layout.form">
     <Dialog
         id="addProductV2Dialog"
-        title="{i18n>addProductDialogTitle}"
+        title="{= ${newProductV2>/isEdit} ? ${i18n>editProductDialogTitle} : ${i18n>addProductDialogTitle} }"
         contentWidth="450px">
         <content>
             <f:SimpleForm
@@ -17,6 +17,7 @@
                         id="inpV2Id"
                         type="Number"
                         value="{newProductV2>/ID}"
+                        editable="{= !${newProductV2>/isEdit} }"
                         liveChange=".onV2InputLiveChange" />
 
                     <Label id="lblV2Name" text="{i18n>columnName}" required="true" />
