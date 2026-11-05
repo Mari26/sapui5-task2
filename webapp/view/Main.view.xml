@@ -62,19 +62,18 @@
                     <!-- Tab 2: oData v2 Model -->
                     <IconTabFilter id="odataV2Tab" text="{i18n>tabODataV2Model}" key="odataV2">
                         <Table 
-                            id="productsV2Table" 
-                            items="{
-                                path: 'odataV2>/Products',
-                                sorter: {
-                                    path: 'ID',
-                                    descending: true
-                                }
-                            }" 
+                           id="productsV2Table" 
+                            items="{odataV2>/Products}" 
                             mode="MultiSelect" 
                             width="auto">
                             
                             <headerToolbar>
                                 <OverflowToolbar id="v2Toolbar">
+                                    <Input
+                                        id="v2ProductNameFilterInput"
+                                        placeholder="{i18n>v2FilterPlaceholder}"
+                                        width="250px"
+                                        liveChange=".onFilterV2Products" />
                                     <ToolbarSpacer id="v2Spacer" />
                                     <Button 
                                         id="addV2Button" 
