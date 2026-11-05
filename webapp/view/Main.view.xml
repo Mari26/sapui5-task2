@@ -61,7 +61,33 @@
 
                     <!-- Tab 2: oData v2 Model -->
                     <IconTabFilter id="odataV2Tab" text="{i18n>tabODataV2Model}" key="odataV2">
-                        <Table id="productsV2Table" items="{odataV2>/Products}" width="auto">
+                        <Table 
+                           id="productsV2Table" 
+                            items="{odataV2>/Products}" 
+                            mode="MultiSelect" 
+                            width="auto">
+                            
+                            <headerToolbar>
+                                <OverflowToolbar id="v2Toolbar">
+                                    <Input
+                                        id="v2ProductNameFilterInput"
+                                        placeholder="{i18n>v2FilterPlaceholder}"
+                                        width="250px"
+                                        liveChange=".onFilterV2Products" />
+                                    <ToolbarSpacer id="v2Spacer" />
+                                    <Button 
+                                        id="addV2Button" 
+                                        text="{i18n>addV2ButtonText}" 
+                                        type="Accept" 
+                                        press=".onOpenAddV2Dialog" />
+                                    <Button 
+                                        id="deleteV2Button" 
+                                        text="{i18n>deleteV2ButtonText}" 
+                                        type="Reject" 
+                                        press=".onDeleteV2Records" />
+                                </OverflowToolbar>
+                            </headerToolbar>
+
                             <columns>
                                 <Column id="v2IdCol"><Text id="v2IdText" text="{i18n>columnId}" /></Column>
                                 <Column id="v2NameCol"><Text id="v2NameText" text="{i18n>columnName}" /></Column>
@@ -70,6 +96,7 @@
                                 <Column id="v2DiscDateCol"><Text id="v2DiscDateText" text="{i18n>columnDiscontinuedDate}" /></Column>
                                 <Column id="v2RatingCol" hAlign="End"><Text id="v2RatingText" text="{i18n>columnRating}" /></Column>
                                 <Column id="v2PriceCol" hAlign="End"><Text id="v2PriceText" text="{i18n>columnPrice}" /></Column>
+                                <Column id="v2ActionsCol" hAlign="Center"><Text id="v2ActionsText" text="{i18n>columnActions}" /></Column>
                             </columns>
                             <items>
                                 <ColumnListItem id="v2ProductRow">
@@ -87,6 +114,10 @@
                                         }" />
                                         <ObjectNumber id="v2RatingCell" number="{odataV2>Rating}" />
                                         <ObjectNumber id="v2PriceCell" number="{odataV2>Price}" />
+                                        <Button 
+                                            id="v2EditBtn" 
+                                            text="{i18n>editV2ButtonText}" 
+                                            press=".onOpenEditV2Dialog" />
                                     </cells>
                                 </ColumnListItem>
                             </items>
