@@ -63,13 +63,7 @@
                     <IconTabFilter id="odataV2Tab" text="{i18n>tabODataV2Model}" key="odataV2">
                         <Table 
                             id="productsV2Table" 
-                            items="{
-                                path: 'odataV2>/Products',
-                                sorter: {
-                                    path: 'ID',
-                                    descending: true
-                                }
-                            }" 
+                            items="{odataV2>/Products}" 
                             mode="MultiSelect" 
                             width="auto">
                             
