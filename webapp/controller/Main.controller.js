@@ -23,6 +23,8 @@ sap.ui.define([
         "inpV2Price"
     ];
 
+    const aValidTabKeys = ["json", "odataV2", "odataV4"];
+
     return BaseController.extend("sapui5task2.controller.Main", {
         formatter: formatter,
         onInit() {
@@ -41,6 +43,9 @@ sap.ui.define([
             const oModel = new JSONModel(oData);
             this.setModel(oModel);
             this._updateGenres();
+            const oRouter = this.getOwnerComponent().getRouter();
+            oRouter.getRoute("RouteMain").attachPatternMatched(this._onRouteMatched, this);
+            oRouter.getRoute("RouteTab").attachPatternMatched(this._onRouteMatched, this);
         },
 
         // Helper method to generate an empty book template
@@ -419,6 +424,25 @@ sap.ui.define([
             const oTable = this.byId("productsV2Table");
             const oBinding = oTable.getBinding("items");
             oBinding.filter(aFilters, FilterType.Application);
+        },
+        onTabSelect(oEvent) {
+            const sSelectedTabKey = oEvent.getParameter("key");
+            this.getOwnerComponent().getRouter().navTo("RouteTab", {
+                tabKey: sSelectedTabKey
+            });
+        },
+
+        _onRouteMatched(oEvent) {
+            const oArguments = oEvent.getParameter("arguments");
+            const sTabKey = oArguments && oArguments.tabKey;
+
+            if (aValidTabKeys.includes(sTabKey)) {
+                this.byId("idIconTabBar").setSelectedKey(sTabKey);
+            } else {
+                this.getOwnerComponent().getRouter().navTo("RouteTab", {
+                    tabKey: aValidTabKeys[0]
+                }, true);
+            }
         }
     });
 });

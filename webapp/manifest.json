@@ -111,13 +111,20 @@
         "viewPath": "sapui5task2.view"
       },
       "routes": [
-        {
+      {
           "name": "RouteMain",
-          "pattern": ":?query:",
+          "pattern": "",
           "target": [
             "TargetMain"
           ]
-        }
+        },
+        {
+          "name": "RouteTab",
+          "pattern": "tab/{tabKey}",
+          "target": [
+            "TargetMain"
+          ]
+        }  
       ],
       "targets": {
         "TargetMain": {

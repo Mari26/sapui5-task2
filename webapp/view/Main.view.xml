@@ -6,7 +6,7 @@
     displayBlock="true">
     <Page id="page" title="{i18n>title}">
         <content>
-            <IconTabBar id="idIconTabBar" class="sapUiResponsiveContentPadding">
+            <IconTabBar id="idIconTabBar" class="sapUiResponsiveContentPadding" select=".onTabSelect">
                 <items>
                     <!-- Tab 1: JSON Model -->
                     <IconTabFilter id="jsonModelTab" text="{i18n>tabJsonModel}" key="json">
