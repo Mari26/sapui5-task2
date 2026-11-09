@@ -222,7 +222,7 @@ sap.ui.define([
             this.getModel().setProperty(oContext.getPath() + "/editMode", false);
         },
 
-       onDeleteV2Records() {
+        onDeleteV2Records() {
             const oTable = this.byId("productsV2Table");
             const aSelectedContexts = oTable.getSelectedContexts();
             const oResourceBundle = this.getResourceBundle();
@@ -265,9 +265,20 @@ sap.ui.define([
                 }
             });
         },
-        
-       async onOpenAddV2Dialog() {
-            const oNewProductModel = new JSONModel({
+
+        async _openV2Dialog(oDialogData) {
+            this.setModel(new JSONModel(oDialogData), "newProductV2");
+
+            this.oAddV2Dialog ??= await this.loadFragment({
+                name: "sapui5task2.view.fragments.AddProductV2"
+            });
+
+            this._resetV2DialogValueStates();
+            this.oAddV2Dialog.open();
+        },
+
+        onOpenAddV2Dialog() {
+            this._openV2Dialog({
                 isEdit: false,
                 sPath: "",
                 ID: "",
@@ -278,23 +289,13 @@ sap.ui.define([
                 Rating: "",
                 Price: ""
             });
-            this.setModel(oNewProductModel, "newProductV2");
-
-            if (!this.oAddV2Dialog) {
-                this.oAddV2Dialog = await this.loadFragment({
-                    name: "sapui5task2.view.fragments.AddProductV2"
-                });
-            }
-
-            this._resetV2DialogValueStates();
-            this.oAddV2Dialog.open();
         },
 
-        async onOpenEditV2Dialog(oEvent) {
+        onOpenEditV2Dialog(oEvent) {
             const oBindingContext = oEvent.getSource().getBindingContext("odataV2");
             const oRowData = oBindingContext.getObject();
 
-            const oEditProductModel = new JSONModel({
+            this._openV2Dialog({
                 isEdit: true,
                 sPath: oBindingContext.getPath(),
                 ID: String(oRowData.ID),
@@ -305,16 +306,6 @@ sap.ui.define([
                 Rating: String(oRowData.Rating),
                 Price: String(oRowData.Price)
             });
-            this.setModel(oEditProductModel, "newProductV2");
-
-            if (!this.oAddV2Dialog) {
-                this.oAddV2Dialog = await this.loadFragment({
-                    name: "sapui5task2.view.fragments.AddProductV2"
-                });
-            }
-
-            this._resetV2DialogValueStates();
-            this.oAddV2Dialog.open();
         },
 
         onV2InputLiveChange(oEvent) {
@@ -389,7 +380,6 @@ sap.ui.define([
                     success: () => {
                         MessageToast.show(oResourceBundle.getText("updateSuccessMessage"));
                         this.oAddV2Dialog.close();
-                        this.byId("productsV2Table").getBinding("items").refresh();
                     },
                     error: () => {
                         MessageBox.error(oResourceBundle.getText("updateErrorMessage"));
@@ -400,7 +390,6 @@ sap.ui.define([
                     success: () => {
                         MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
                         this.oAddV2Dialog.close();
-                        this.byId("productsV2Table").getBinding("items").refresh();
                     },
                     error: () => {
                         MessageBox.error(oResourceBundle.getText("createErrorMessage"));
