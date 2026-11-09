@@ -3,11 +3,12 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
+    "sap/ui/model/FilterType",
     "sap/m/MessageToast",
     "sap/ui/core/library",
     "../model/formatter",
     "sap/m/MessageBox"
-], function (BaseController, JSONModel, Filter, FilterOperator, MessageToast, coreLibrary, formatter, MessageBox) {
+], function (BaseController, JSONModel, Filter, FilterOperator, FilterType, MessageToast, coreLibrary, formatter, MessageBox) {
     "use strict";
 
     const { ValueState } = coreLibrary;
@@ -400,6 +401,24 @@ sap.ui.define([
         onCancelV2Product() {
             this._resetV2DialogValueStates();
             this.oAddV2Dialog.close();
+        },
+        
+        onFilterV2Products(oEvent) {
+            const sQuery = oEvent.getParameter("value").trim();
+            const aFilters = [];
+
+            if (sQuery) {
+                aFilters.push(new Filter({
+                    path: "Name",
+                    operator: FilterOperator.Contains,
+                    value1: sQuery,
+                    caseSensitive: false
+                }));
+            }
+
+            const oTable = this.byId("productsV2Table");
+            const oBinding = oTable.getBinding("items");
+            oBinding.filter(aFilters, FilterType.Application);
         }
     });
 });

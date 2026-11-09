@@ -69,6 +69,11 @@
                             
                             <headerToolbar>
                                 <OverflowToolbar id="v2Toolbar">
+                                    <Input
+                                        id="v2ProductNameFilterInput"
+                                        placeholder="{i18n>v2FilterPlaceholder}"
+                                        width="250px"
+                                        liveChange=".onFilterV2Products" />
                                     <ToolbarSpacer id="v2Spacer" />
                                     <Button 
                                         id="addV2Button" 
