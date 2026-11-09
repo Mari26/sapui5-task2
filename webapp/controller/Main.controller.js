@@ -3,13 +3,25 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
+    "sap/ui/model/FilterType",
     "sap/m/MessageToast",
     "sap/ui/core/library",
-    "../model/formatter"
-], function (BaseController, JSONModel, Filter, FilterOperator, MessageToast, coreLibrary, formatter) {
+    "../model/formatter",
+    "sap/m/MessageBox"
+], function (BaseController, JSONModel, Filter, FilterOperator, FilterType, MessageToast, coreLibrary, formatter, MessageBox) {
     "use strict";
 
     const { ValueState } = coreLibrary;
+
+    const aV2InputIds = [
+        "inpV2Id",
+        "inpV2Name",
+        "inpV2Desc",
+        "inpV2RelDate",
+        "inpV2DiscDate",
+        "inpV2Rating",
+        "inpV2Price"
+    ];
 
     return BaseController.extend("sapui5task2.controller.Main", {
         formatter: formatter,
@@ -208,6 +220,205 @@ sap.ui.define([
         onSaveTitle(oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
             this.getModel().setProperty(oContext.getPath() + "/editMode", false);
+        },
+
+        onDeleteV2Records() {
+            const oTable = this.byId("productsV2Table");
+            const aSelectedContexts = oTable.getSelectedContexts();
+            const oResourceBundle = this.getResourceBundle();
+
+            if (aSelectedContexts.length === 0) {
+                MessageBox.warning(oResourceBundle.getText("noSelectionWarning"));
+                return;
+            }
+
+            const oModel = this.getModel("odataV2");
+            const sGroupId = "deleteBatchGroup";
+
+            const aDeferredGroups = oModel.getDeferredGroups();
+            if (!aDeferredGroups.includes(sGroupId)) {
+                oModel.setDeferredGroups(aDeferredGroups.concat([sGroupId]));
+            }
+
+            aSelectedContexts.forEach((oContext) => {
+                oModel.remove(oContext.getPath(), {
+                    groupId: sGroupId
+                });
+            });
+
+            oModel.submitChanges({
+                groupId: sGroupId,
+                success: (oData) => {
+                    const bHasError = oData.__batchResponses && oData.__batchResponses.some((oResponse) => {
+                        return oResponse.response && oResponse.response.statusCode >= "400";
+                    });
+
+                    if (bHasError) {
+                        MessageBox.error(oResourceBundle.getText("deleteErrorMessage"));
+                    } else {
+                        MessageToast.show(oResourceBundle.getText("deleteSuccessMessage", [aSelectedContexts.length]));
+                        oTable.removeSelections(true);
+                    }
+                },
+                error: () => {
+                    MessageBox.error(oResourceBundle.getText("deleteErrorMessage"));
+                }
+            });
+        },
+
+        async _openV2Dialog(oDialogData) {
+            this.setModel(new JSONModel(oDialogData), "newProductV2");
+
+            this.oAddV2Dialog ??= await this.loadFragment({
+                name: "sapui5task2.view.fragments.AddProductV2"
+            });
+
+            this._resetV2DialogValueStates();
+            this.oAddV2Dialog.open();
+        },
+
+        onOpenAddV2Dialog() {
+            this._openV2Dialog({
+                isEdit: false,
+                sPath: "",
+                ID: "",
+                Name: "",
+                Description: "",
+                ReleaseDate: null,
+                DiscontinuedDate: null,
+                Rating: "",
+                Price: ""
+            });
+        },
+
+        onOpenEditV2Dialog(oEvent) {
+            const oBindingContext = oEvent.getSource().getBindingContext("odataV2");
+            const oRowData = oBindingContext.getObject();
+
+            this._openV2Dialog({
+                isEdit: true,
+                sPath: oBindingContext.getPath(),
+                ID: String(oRowData.ID),
+                Name: oRowData.Name,
+                Description: oRowData.Description,
+                ReleaseDate: oRowData.ReleaseDate ? new Date(oRowData.ReleaseDate) : null,
+                DiscontinuedDate: oRowData.DiscontinuedDate ? new Date(oRowData.DiscontinuedDate) : null,
+                Rating: String(oRowData.Rating),
+                Price: String(oRowData.Price)
+            });
+        },
+
+        onV2InputLiveChange(oEvent) {
+            const oControl = oEvent.getSource();
+            const bEmpty = oControl.isA("sap.m.DatePicker")
+                ? !oEvent.getParameter("valid") || !oControl.getDateValue()
+                : !oControl.getValue().trim();
+
+            if (bEmpty) {
+                oControl.setValueState(ValueState.Error);
+                oControl.setValueStateText(this.getResourceBundle().getText("fieldRequiredError"));
+            } else {
+                oControl.setValueState(ValueState.None);
+                oControl.setValueStateText("");
+            }
+        },
+
+        _validateV2DialogInputs() {
+            const sErrorText = this.getResourceBundle().getText("fieldRequiredError");
+            let bIsValid = true;
+
+            aV2InputIds.forEach((sId) => {
+                const oControl = this.byId(sId);
+                const bEmpty = oControl.isA("sap.m.DatePicker")
+                    ? !oControl.getDateValue()
+                    : !oControl.getValue().trim();
+
+                if (bEmpty) {
+                    oControl.setValueState(ValueState.Error);
+                    oControl.setValueStateText(sErrorText);
+                    bIsValid = false;
+                } else {
+                    oControl.setValueState(ValueState.None);
+                    oControl.setValueStateText("");
+                }
+            });
+
+            return bIsValid;
+        },
+
+        _resetV2DialogValueStates() {
+            aV2InputIds.forEach((sId) => {
+                const oControl = this.byId(sId);
+                if (oControl) {
+                    oControl.setValueState(ValueState.None);
+                    oControl.setValueStateText("");
+                }
+            });
+        },
+
+        onSaveV2Product() {
+            if (!this._validateV2DialogInputs()) {
+                return;
+            }
+
+            const oResourceBundle = this.getResourceBundle();
+            const oDialogData = this.getModel("newProductV2").getData();
+            const oODataV2Model = this.getModel("odataV2");
+
+            const oPayload = {
+                ID: parseInt(oDialogData.ID, 10),
+                Name: oDialogData.Name.trim(),
+                Description: oDialogData.Description.trim(),
+                ReleaseDate: oDialogData.ReleaseDate,
+                DiscontinuedDate: oDialogData.DiscontinuedDate,
+                Rating: parseInt(oDialogData.Rating, 10),
+                Price: parseFloat(oDialogData.Price).toFixed(2)
+            };
+
+            if (oDialogData.isEdit) {
+                oODataV2Model.update(oDialogData.sPath, oPayload, {
+                    success: () => {
+                        MessageToast.show(oResourceBundle.getText("updateSuccessMessage"));
+                        this.oAddV2Dialog.close();
+                    },
+                    error: () => {
+                        MessageBox.error(oResourceBundle.getText("updateErrorMessage"));
+                    }
+                });
+            } else {
+                oODataV2Model.create("/Products", oPayload, {
+                    success: () => {
+                        MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
+                        this.oAddV2Dialog.close();
+                    },
+                    error: () => {
+                        MessageBox.error(oResourceBundle.getText("createErrorMessage"));
+                    }
+                });
+            }
+        },
+
+        onCancelV2Product() {
+            this._resetV2DialogValueStates();
+            this.oAddV2Dialog.close();
+        },
+        
+        onFilterV2Products(oEvent) {
+            const sQuery = oEvent.getParameter("value").trim();
+            const aFilters = [];
+
+            if (sQuery) {
+                aFilters.push(new Filter({
+                    path: "Name",
+                    operator: FilterOperator.Contains,
+                    value1: sQuery,
+                    caseSensitive: false
+                }));
+            }
+
+            const oTable = this.byId("productsV2Table");
+            const oBinding = oTable.getBinding("items");
+            oBinding.filter(aFilters, FilterType.Application);
         }
     });
 });

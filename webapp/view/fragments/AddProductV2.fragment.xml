@@ -1,0 +1,77 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+    <Dialog
+        id="addProductV2Dialog"
+        title="{= ${newProductV2>/isEdit} ? ${i18n>editProductDialogTitle} : ${i18n>addProductDialogTitle} }"
+        contentWidth="450px">
+        <content>
+            <f:SimpleForm
+                id="addProductV2Form"
+                editable="true"
+                layout="ResponsiveGridLayout">
+                <f:content>
+                    <Label id="lblV2Id" text="{i18n>columnId}" required="true" />
+                    <Input
+                        id="inpV2Id"
+                        type="Number"
+                        value="{newProductV2>/ID}"
+                        editable="{= !${newProductV2>/isEdit} }"
+                        liveChange=".onV2InputLiveChange" />
+
+                    <Label id="lblV2Name" text="{i18n>columnName}" required="true" />
+                    <Input
+                        id="inpV2Name"
+                        value="{newProductV2>/Name}"
+                        liveChange=".onV2InputLiveChange" />
+
+                    <Label id="lblV2Desc" text="{i18n>columnDescription}" required="true" />
+                    <Input
+                        id="inpV2Desc"
+                        value="{newProductV2>/Description}"
+                        liveChange=".onV2InputLiveChange" />
+
+                    <Label id="lblV2RelDate" text="{i18n>columnReleaseDate}" required="true" />
+                    <DatePicker
+                        id="inpV2RelDate"
+                        dateValue="{newProductV2>/ReleaseDate}"
+                        change=".onV2InputLiveChange" />
+
+                    <Label id="lblV2DiscDate" text="{i18n>columnDiscontinuedDate}" required="true" />
+                    <DatePicker
+                        id="inpV2DiscDate"
+                        dateValue="{newProductV2>/DiscontinuedDate}"
+                        change=".onV2InputLiveChange" />
+
+                    <Label id="lblV2Rating" text="{i18n>columnRating}" required="true" />
+                    <Input
+                        id="inpV2Rating"
+                        type="Number"
+                        value="{newProductV2>/Rating}"
+                        liveChange=".onV2InputLiveChange" />
+
+                    <Label id="lblV2Price" text="{i18n>columnPrice}" required="true" />
+                    <Input
+                        id="inpV2Price"
+                        type="Number"
+                        value="{newProductV2>/Price}"
+                        liveChange=".onV2InputLiveChange" />
+                </f:content>
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button
+                id="saveV2ProductBtn"
+                text="{i18n>saveProductButtonText}"
+                type="Emphasized"
+                press=".onSaveV2Product" />
+        </beginButton>
+        <endButton>
+            <Button
+                id="cancelV2ProductBtn"
+                text="{i18n>cancelProductButtonText}"
+                press=".onCancelV2Product" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
