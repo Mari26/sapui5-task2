@@ -1,0 +1,14 @@
+<mvc:View
+    controllerName="sapui5task2.controller.Product"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+    <Page
+        id="productPage"
+        title="{i18n>productPageTitle}"
+        showNavButton="true"
+        navButtonPress=".onNavBack">
+        <content>
+        </content>
+    </Page>
+</mvc:View>

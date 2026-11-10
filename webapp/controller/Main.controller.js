@@ -443,6 +443,12 @@ sap.ui.define([
                     tabKey: aValidTabKeys[0]
                 }, true);
             }
+        },
+        onNavigateToProduct(oEvent) {
+            const sProductId = oEvent.getSource().getBindingContext("odataV2").getProperty("ID");
+            this.getOwnerComponent().getRouter().navTo("RouteProduct", {
+                ProductID: sProductId
+            });
         }
     });
 });
