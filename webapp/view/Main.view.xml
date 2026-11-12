@@ -6,7 +6,7 @@
     displayBlock="true">
     <Page id="page" title="{i18n>title}">
         <content>
-            <IconTabBar id="idIconTabBar" class="sapUiResponsiveContentPadding">
+            <IconTabBar id="idIconTabBar" class="sapUiResponsiveContentPadding" select=".onTabSelect">
                 <items>
                     <!-- Tab 1: JSON Model -->
                     <IconTabFilter id="jsonModelTab" text="{i18n>tabJsonModel}" key="json">
@@ -99,7 +99,9 @@
                                 <Column id="v2ActionsCol" hAlign="Center"><Text id="v2ActionsText" text="{i18n>columnActions}" /></Column>
                             </columns>
                             <items>
-                                <ColumnListItem id="v2ProductRow">
+                                <ColumnListItem id="v2ProductRow" 
+                                type="Navigation" 
+                                    press=".onNavigateToProduct">
                                     <cells>
                                         <Text id="v2IdCell" text="{odataV2>ID}" />
                                         <Text id="v2NameCell" text="{odataV2>Name}" />
@@ -137,7 +139,10 @@
                                 <Column id="v4PriceCol" hAlign="End"><Text id="v4PriceText" text="{i18n>columnPrice}" /></Column>
                             </columns>
                             <items>
-                                <ColumnListItem id="v4ProductRow">
+                                <ColumnListItem 
+                                id="v4ProductRow" 
+                                type="Navigation" 
+                                press=".onNavigateToProduct">
                                     <cells>
                                         <Text id="v4IdCell" text="{odataV4>ID}" />
                                         <Text id="v4NameCell" text="{odataV4>Name}" />
