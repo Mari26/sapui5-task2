@@ -7,8 +7,9 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/ui/core/library",
     "../model/formatter",
-    "sap/m/MessageBox"
-], function (BaseController, JSONModel, Filter, FilterOperator, FilterType, MessageToast, coreLibrary, formatter, MessageBox) {
+    "sap/m/MessageBox",
+    "sap/ui/core/format/DateFormat"
+], function (BaseController, JSONModel, Filter, FilterOperator, FilterType, MessageToast, coreLibrary, formatter, MessageBox, DateFormat) {
     "use strict";
 
     const { ValueState } = coreLibrary;
@@ -449,6 +450,41 @@ sap.ui.define([
             this.getOwnerComponent().getRouter().navTo("RouteProduct", {
                 ProductID: sProductId
             });
-        }
+        },
+
+        onDeleteV4Products() {
+            const oTable = this.byId("productsV4Table");
+            const aSelectedItems = oTable.getSelectedItems();
+            const oBundle = this.getResourceBundle();
+
+            if (!aSelectedItems.length) {
+                MessageToast.show(oBundle.getText("noSelectionWarning"));
+                return;
+            }
+
+            const aDeletePromises = aSelectedItems.map((oItem) =>
+                oItem.getBindingContext("odataV4").delete("$auto")
+            );
+
+            oTable.setBusy(true);
+
+            Promise.all(aDeletePromises)
+                .then(() => {
+                    MessageToast.show(oBundle.getText("deleteSuccessMessage", [aSelectedItems.length]));
+                    oTable.removeSelections(true);
+                })
+                .catch((oError) => {
+                    MessageBox.error(oError.message || oBundle.getText("deleteErrorMessage"));
+                })
+                .finally(() => {
+                    oTable.setBusy(false);
+                });
+        },
+        formatV4Date(sDate) {
+            if (!sDate) {
+                return "";
+            }
+            return DateFormat.getDateInstance().format(new Date(sDate));
+        },
     });
 });
