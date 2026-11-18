@@ -367,8 +367,15 @@ sap.ui.define([
                 return;
             }
 
-            const oResourceBundle = this.getResourceBundle();
             const oDialogData = this.getModel("newProductV2").getData();
+            const sActiveTab = this.byId("idIconTabBar").getSelectedKey();
+
+            if (sActiveTab === "odataV4") {
+                this._createV4Product(oDialogData);
+                return;
+            }
+
+            const oResourceBundle = this.getResourceBundle();
             const oODataV2Model = this.getModel("odataV2");
 
             const oPayload = {
@@ -402,6 +409,31 @@ sap.ui.define([
                     }
                 });
             }
+        },
+
+        _createV4Product(oDialogData) {
+            const oResourceBundle = this.getResourceBundle();
+            const oListBinding = this.byId("productsV4Table").getBinding("items");
+
+            const oNewContext = oListBinding.create({
+                ID: parseInt(oDialogData.ID, 10),
+                Name: oDialogData.Name.trim(),
+                Description: oDialogData.Description.trim(),
+                ReleaseDate: oDialogData.ReleaseDate.toISOString(),
+                DiscontinuedDate: oDialogData.DiscontinuedDate.toISOString(),
+                Rating: parseInt(oDialogData.Rating, 10),
+                Price: parseFloat(oDialogData.Price)
+            });
+
+            this.oAddV2Dialog.close();
+
+            oNewContext.created()
+                .then(() => {
+                    MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
+                })
+                .catch((oError) => {
+                    MessageBox.error(oError.message || oResourceBundle.getText("createErrorMessage"));
+                });
         },
 
         onCancelV2Product() {

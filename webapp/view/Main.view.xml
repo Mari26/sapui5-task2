@@ -133,6 +133,11 @@
                             <OverflowToolbar id="v4TableToolbar">
                                 <ToolbarSpacer id="v4ToolbarSpacer" />
                                 <Button
+                                    id="addV4Btn"
+                                    text="{i18n>addV2ButtonText}"
+                                    type="Accept"
+                                    press=".onOpenAddV2Dialog" />
+                                <Button
                                     id="deleteV4Btn"
                                     text="{i18n>deleteV2ButtonText}"
                                     type="Reject"
