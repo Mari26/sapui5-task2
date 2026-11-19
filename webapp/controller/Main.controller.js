@@ -297,9 +297,12 @@ sap.ui.define([
             });
         },
 
-        onOpenEditV2Dialog(oEvent) {
-            const oBindingContext = oEvent.getSource().getBindingContext("odataV2");
+        onOpenEditDialog(oEvent) {
+            const oSource = oEvent.getSource();
+            const oBindingContext = oSource.getBindingContext("odataV2") || oSource.getBindingContext("odataV4");
             const oRowData = oBindingContext.getObject();
+
+            this._oEditContext = oBindingContext;
 
             this._openProductDialog({
                 isEdit: true,
@@ -371,7 +374,11 @@ sap.ui.define([
             const sActiveTab = this.byId("idIconTabBar").getSelectedKey();
 
             if (sActiveTab === "odataV4") {
-                this._createV4Product(oDialogData);
+                if (oDialogData.isEdit) {
+                    this._updateV4Product(oDialogData);
+                } else {
+                    this._createV4Product(oDialogData);
+                }
                 return;
             }
 
@@ -437,6 +444,44 @@ sap.ui.define([
                 Rating: parseInt(oDialogData.Rating, 10),
                 Price: parseFloat(oDialogData.Price)
             });
+        },
+        
+        _updateV4Product(oDialogData) {
+            const oResourceBundle = this.getResourceBundle();
+            const oContext = this._oEditContext;
+            const oListBinding = this.byId("productsV4Table").getBinding("items");
+
+            const oUpdatedFields = {
+                Name: oDialogData.Name.trim(),
+                Description: oDialogData.Description.trim(),
+                ReleaseDate: oDialogData.ReleaseDate.toISOString(),
+                DiscontinuedDate: oDialogData.DiscontinuedDate.toISOString(),
+                Rating: parseInt(oDialogData.Rating, 10),
+                Price: parseFloat(oDialogData.Price)
+            };
+
+            const fnOnPatchCompleted = (oEvent) => {
+                const bSuccess = oEvent.getParameter("success");
+
+                if (bSuccess) {
+                    MessageToast.show(oResourceBundle.getText("updateSuccessMessage"));
+                    this.oAddProductDialog.close();
+                } else {
+                    oListBinding.resetChanges();
+                    MessageBox.error(oResourceBundle.getText("updateErrorMessage"));
+                }
+            };
+
+            oListBinding.attachEventOnce("patchCompleted", fnOnPatchCompleted);
+
+            Object.entries(oUpdatedFields).forEach(([sKey, vValue]) => {
+                oContext.setProperty(sKey, vValue);
+            });
+
+            if (!oContext.hasPendingChanges()) {
+                oListBinding.detachEvent("patchCompleted", fnOnPatchCompleted);
+                this.oAddProductDialog.close();
+            }
         },
 
         onCancelProduct() {
