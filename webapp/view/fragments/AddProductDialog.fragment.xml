@@ -1,0 +1,77 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+    <Dialog
+        id="addProductDialog"
+        title="{= ${newProduct>/isEdit} ? ${i18n>editProductDialogTitle} : ${i18n>addProductDialogTitle} }"
+        contentWidth="450px">
+        <content>
+            <f:SimpleForm
+                id="addProductForm"
+                editable="true"
+                layout="ResponsiveGridLayout">
+                <f:content>
+                    <Label id="lblProductId" text="{i18n>columnId}" required="true" />
+                    <Input
+                        id="inpProductId"
+                        type="Number"
+                        value="{newProduct>/ID}"
+                        editable="{= !${newProduct>/isEdit} }"
+                        liveChange=".onProductInputLiveChange" />
+
+                    <Label id="lblProductName" text="{i18n>columnName}" required="true" />
+                    <Input
+                        id="inpProductName"
+                        value="{newProduct>/Name}"
+                        liveChange=".onProductInputLiveChange" />
+
+                    <Label id="lblProductDesc" text="{i18n>columnDescription}" required="true" />
+                    <Input
+                        id="inpProductDesc"
+                        value="{newProduct>/Description}"
+                        liveChange=".onProductInputLiveChange" />
+
+                    <Label id="lblProductRelDate" text="{i18n>columnReleaseDate}" required="true" />
+                    <DatePicker
+                        id="inpProductRelDate"
+                        dateValue="{newProduct>/ReleaseDate}"
+                        change=".onProductInputLiveChange" />
+
+                    <Label id="lblProductDiscDate" text="{i18n>columnDiscontinuedDate}" required="true" />
+                    <DatePicker
+                        id="inpProductDiscDate"
+                        dateValue="{newProduct>/DiscontinuedDate}"
+                        change=".onProductInputLiveChange" />
+
+                    <Label id="lblProductRating" text="{i18n>columnRating}" required="true" />
+                    <Input
+                        id="inpProductRating"
+                        type="Number"
+                        value="{newProduct>/Rating}"
+                        liveChange=".onProductInputLiveChange" />
+
+                    <Label id="lblProductPrice" text="{i18n>columnPrice}" required="true" />
+                    <Input
+                        id="inpProductPrice"
+                        type="Number"
+                        value="{newProduct>/Price}"
+                        liveChange=".onProductInputLiveChange" />
+                </f:content>
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button
+                id="saveProductBtn"
+                text="{i18n>saveProductButtonText}"
+                type="Emphasized"
+                press=".onSaveProduct" />
+        </beginButton>
+        <endButton>
+            <Button
+                id="cancelProductBtn"
+                text="{i18n>cancelProductButtonText}"
+                press=".onCancelProduct" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
