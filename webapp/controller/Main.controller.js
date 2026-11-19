@@ -458,7 +458,7 @@ sap.ui.define([
             const oBundle = this.getResourceBundle();
 
             if (!aSelectedItems.length) {
-                MessageToast.show(oBundle.getText("noSelectionWarning"));
+                MessageBox.warning(oBundle.getText("noSelectionWarning"));
                 return;
             }
 

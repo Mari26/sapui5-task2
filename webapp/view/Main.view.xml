@@ -77,12 +77,12 @@
                                     <ToolbarSpacer id="v2Spacer" />
                                     <Button 
                                         id="addV2Button" 
-                                        text="{i18n>addV2ButtonText}" 
+                                        text="{i18n>addButtonText}" 
                                         type="Accept" 
                                         press=".onOpenAddV2Dialog" />
                                     <Button 
                                         id="deleteV2Button" 
-                                        text="{i18n>deleteV2ButtonText}" 
+                                        text="{i18n>deleteButtonText}" 
                                         type="Reject" 
                                         press=".onDeleteV2Records" />
                                 </OverflowToolbar>
@@ -118,7 +118,7 @@
                                         <ObjectNumber id="v2PriceCell" number="{odataV2>Price}" />
                                         <Button 
                                             id="v2EditBtn" 
-                                            text="{i18n>editV2ButtonText}" 
+                                            text="{i18n>editButtonText}" 
                                             press=".onOpenEditV2Dialog" />
                                     </cells>
                                 </ColumnListItem>
@@ -134,7 +134,7 @@
                                 <ToolbarSpacer id="v4ToolbarSpacer" />
                                 <Button
                                     id="deleteV4Btn"
-                                    text="{i18n>deleteV2ButtonText}"
+                                    text="{i18n>deleteButtonText}"
                                     type="Reject"
                                     press=".onDeleteV4Products" />
                             </OverflowToolbar>
