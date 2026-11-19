@@ -7,20 +7,21 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/ui/core/library",
     "../model/formatter",
-    "sap/m/MessageBox"
-], function (BaseController, JSONModel, Filter, FilterOperator, FilterType, MessageToast, coreLibrary, formatter, MessageBox) {
+    "sap/m/MessageBox",
+    "sap/ui/core/format/DateFormat"
+], function (BaseController, JSONModel, Filter, FilterOperator, FilterType, MessageToast, coreLibrary, formatter, MessageBox, DateFormat) {
     "use strict";
 
     const { ValueState } = coreLibrary;
 
-    const aV2InputIds = [
-        "inpV2Id",
-        "inpV2Name",
-        "inpV2Desc",
-        "inpV2RelDate",
-        "inpV2DiscDate",
-        "inpV2Rating",
-        "inpV2Price"
+    const aProductInputIds = [
+        "inpProductId",
+        "inpProductName",
+        "inpProductDesc",
+        "inpProductRelDate",
+        "inpProductDiscDate",
+        "inpProductRating",
+        "inpProductPrice"
     ];
 
     const aValidTabKeys = ["json", "odataV2", "odataV4"];
@@ -160,7 +161,7 @@ sap.ui.define([
         async onDeleteRecord() {
             const oTable = this.byId("booksTable");
             const aSelectedContexts = oTable.getSelectedContexts();
-            
+
             if (aSelectedContexts.length === 0) {
                 return;
             }
@@ -178,15 +179,15 @@ sap.ui.define([
             const aSelectedContexts = oTable.getSelectedContexts();
             const oModel = this.getModel();
             const aBooks = oModel.getProperty("/Books");
-            
+
             const aIndices = aSelectedContexts.map(oContext => {
                 return parseInt(oContext.getPath().split("/").pop(), 10);
             }).sort((a, b) => b - a);
-            
+
             aIndices.forEach(iIndex => {
                 aBooks.splice(iIndex, 1);
             });
-            
+
             oModel.setProperty("/Books", aBooks);
             this._updateGenres();
             oTable.removeSelections(true);
@@ -207,7 +208,7 @@ sap.ui.define([
             if (sTitleQuery) {
                 aFilters.push(new Filter("Name", FilterOperator.Contains, sTitleQuery));
             }
-            
+
             if (sGenreQuery) {
                 aFilters.push(new Filter("Genre", FilterOperator.EQ, sGenreQuery));
             }
@@ -271,19 +272,19 @@ sap.ui.define([
             });
         },
 
-        async _openV2Dialog(oDialogData) {
-            this.setModel(new JSONModel(oDialogData), "newProductV2");
+        async _openProductDialog(oDialogData) {
+            this.setModel(new JSONModel(oDialogData), "newProduct");
 
-            this.oAddV2Dialog ??= await this.loadFragment({
-                name: "sapui5task2.view.fragments.AddProductV2"
+            this.oAddProductDialog ??= await this.loadFragment({
+                name: "sapui5task2.view.fragments.AddProductDialog"
             });
 
-            this._resetV2DialogValueStates();
-            this.oAddV2Dialog.open();
+            this._resetProductDialogValueStates();
+            this.oAddProductDialog.open();
         },
 
-        onOpenAddV2Dialog() {
-            this._openV2Dialog({
+        onOpenAddDialog() {
+            this._openProductDialog({
                 isEdit: false,
                 sPath: "",
                 ID: "",
@@ -296,11 +297,14 @@ sap.ui.define([
             });
         },
 
-        onOpenEditV2Dialog(oEvent) {
-            const oBindingContext = oEvent.getSource().getBindingContext("odataV2");
+        onOpenEditDialog(oEvent) {
+            const oSource = oEvent.getSource();
+            const oBindingContext = oSource.getBindingContext("odataV2") || oSource.getBindingContext("odataV4");
             const oRowData = oBindingContext.getObject();
 
-            this._openV2Dialog({
+            this._oEditContext = oBindingContext;
+
+            this._openProductDialog({
                 isEdit: true,
                 sPath: oBindingContext.getPath(),
                 ID: String(oRowData.ID),
@@ -313,7 +317,7 @@ sap.ui.define([
             });
         },
 
-        onV2InputLiveChange(oEvent) {
+        onProductInputLiveChange(oEvent) {
             const oControl = oEvent.getSource();
             const bEmpty = oControl.isA("sap.m.DatePicker")
                 ? !oEvent.getParameter("valid") || !oControl.getDateValue()
@@ -328,11 +332,11 @@ sap.ui.define([
             }
         },
 
-        _validateV2DialogInputs() {
+        _validateProductDialogInputs() {
             const sErrorText = this.getResourceBundle().getText("fieldRequiredError");
             let bIsValid = true;
 
-            aV2InputIds.forEach((sId) => {
+            aProductInputIds.forEach((sId) => {
                 const oControl = this.byId(sId);
                 const bEmpty = oControl.isA("sap.m.DatePicker")
                     ? !oControl.getDateValue()
@@ -351,8 +355,8 @@ sap.ui.define([
             return bIsValid;
         },
 
-        _resetV2DialogValueStates() {
-            aV2InputIds.forEach((sId) => {
+        _resetProductDialogValueStates() {
+            aProductInputIds.forEach((sId) => {
                 const oControl = this.byId(sId);
                 if (oControl) {
                     oControl.setValueState(ValueState.None);
@@ -361,13 +365,24 @@ sap.ui.define([
             });
         },
 
-        onSaveV2Product() {
-            if (!this._validateV2DialogInputs()) {
+        onSaveProduct() {
+            if (!this._validateProductDialogInputs()) {
+                return;
+            }
+
+            const oDialogData = this.getModel("newProduct").getData();
+            const sActiveTab = this.byId("idIconTabBar").getSelectedKey();
+
+            if (sActiveTab === "odataV4") {
+                if (oDialogData.isEdit) {
+                    this._updateV4Product(oDialogData);
+                } else {
+                    this._createV4Product(oDialogData);
+                }
                 return;
             }
 
             const oResourceBundle = this.getResourceBundle();
-            const oDialogData = this.getModel("newProductV2").getData();
             const oODataV2Model = this.getModel("odataV2");
 
             const oPayload = {
@@ -384,7 +399,7 @@ sap.ui.define([
                 oODataV2Model.update(oDialogData.sPath, oPayload, {
                     success: () => {
                         MessageToast.show(oResourceBundle.getText("updateSuccessMessage"));
-                        this.oAddV2Dialog.close();
+                        this.oAddProductDialog.close();
                     },
                     error: () => {
                         MessageBox.error(oResourceBundle.getText("updateErrorMessage"));
@@ -394,7 +409,7 @@ sap.ui.define([
                 oODataV2Model.create("/Products", oPayload, {
                     success: () => {
                         MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
-                        this.oAddV2Dialog.close();
+                        this.oAddProductDialog.close();
                     },
                     error: () => {
                         MessageBox.error(oResourceBundle.getText("createErrorMessage"));
@@ -403,11 +418,77 @@ sap.ui.define([
             }
         },
 
-        onCancelV2Product() {
-            this._resetV2DialogValueStates();
-            this.oAddV2Dialog.close();
+        _createV4Product(oDialogData) {
+            const oResourceBundle = this.getResourceBundle();
+            const oListBinding = this.byId("productsV4Table").getBinding("items");
+
+            oListBinding.attachEventOnce("createCompleted", (oEvent) => {
+                const bSuccess = oEvent.getParameter("success");
+                const oContext = oEvent.getParameter("context");
+
+                if (bSuccess) {
+                    MessageToast.show(oResourceBundle.getText("createSuccessMessage"));
+                    this.oAddProductDialog.close();
+                } else {
+                    oContext.delete();
+                    MessageBox.error(oResourceBundle.getText("createErrorMessage"));
+                }
+            });
+
+            oListBinding.create({
+                ID: parseInt(oDialogData.ID, 10),
+                Name: oDialogData.Name.trim(),
+                Description: oDialogData.Description.trim(),
+                ReleaseDate: oDialogData.ReleaseDate.toISOString(),
+                DiscontinuedDate: oDialogData.DiscontinuedDate.toISOString(),
+                Rating: parseInt(oDialogData.Rating, 10),
+                Price: parseFloat(oDialogData.Price)
+            });
         },
         
+        _updateV4Product(oDialogData) {
+            const oResourceBundle = this.getResourceBundle();
+            const oContext = this._oEditContext;
+            const oListBinding = this.byId("productsV4Table").getBinding("items");
+
+            const oUpdatedFields = {
+                Name: oDialogData.Name.trim(),
+                Description: oDialogData.Description.trim(),
+                ReleaseDate: oDialogData.ReleaseDate.toISOString(),
+                DiscontinuedDate: oDialogData.DiscontinuedDate.toISOString(),
+                Rating: parseInt(oDialogData.Rating, 10),
+                Price: parseFloat(oDialogData.Price)
+            };
+
+            const fnOnPatchCompleted = (oEvent) => {
+                const bSuccess = oEvent.getParameter("success");
+
+                if (bSuccess) {
+                    MessageToast.show(oResourceBundle.getText("updateSuccessMessage"));
+                    this.oAddProductDialog.close();
+                } else {
+                    oListBinding.resetChanges();
+                    MessageBox.error(oResourceBundle.getText("updateErrorMessage"));
+                }
+            };
+
+            oListBinding.attachEventOnce("patchCompleted", fnOnPatchCompleted);
+
+            Object.entries(oUpdatedFields).forEach(([sKey, vValue]) => {
+                oContext.setProperty(sKey, vValue);
+            });
+
+            if (!oContext.hasPendingChanges()) {
+                oListBinding.detachEvent("patchCompleted", fnOnPatchCompleted);
+                this.oAddProductDialog.close();
+            }
+        },
+
+        onCancelProduct() {
+            this._resetProductDialogValueStates();
+            this.oAddProductDialog.close();
+        },
+
         onFilterV2Products(oEvent) {
             const sQuery = oEvent.getParameter("value").trim();
             const aFilters = [];
@@ -425,6 +506,7 @@ sap.ui.define([
             const oBinding = oTable.getBinding("items");
             oBinding.filter(aFilters, FilterType.Application);
         },
+
         onTabSelect(oEvent) {
             const sSelectedTabKey = oEvent.getParameter("key");
             this.getOwnerComponent().getRouter().navTo("RouteTab", {
@@ -444,11 +526,48 @@ sap.ui.define([
                 }, true);
             }
         },
+
         onNavigateToProduct(oEvent) {
             const sProductId = oEvent.getSource().getBindingContext("odataV2").getProperty("ID");
             this.getOwnerComponent().getRouter().navTo("RouteProduct", {
                 ProductID: sProductId
             });
+        },
+
+        onDeleteV4Products() {
+            const oTable = this.byId("productsV4Table");
+            const aSelectedItems = oTable.getSelectedItems();
+            const oBundle = this.getResourceBundle();
+
+            if (!aSelectedItems.length) {
+                MessageBox.warning(oBundle.getText("noSelectionWarning"));
+                return;
+            }
+
+            const aDeletePromises = aSelectedItems.map((oItem) =>
+                oItem.getBindingContext("odataV4").delete("$auto")
+            );
+
+            oTable.setBusy(true);
+
+            Promise.all(aDeletePromises)
+                .then(() => {
+                    MessageToast.show(oBundle.getText("deleteSuccessMessage", [aSelectedItems.length]));
+                    oTable.removeSelections(true);
+                })
+                .catch((oError) => {
+                    MessageBox.error(oError.message || oBundle.getText("deleteErrorMessage"));
+                })
+                .finally(() => {
+                    oTable.setBusy(false);
+                });
+        },
+
+        formatV4Date(sDate) {
+            if (!sDate) {
+                return "";
+            }
+            return DateFormat.getDateInstance().format(new Date(sDate));
         }
     });
 });
