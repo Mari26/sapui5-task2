@@ -460,7 +460,26 @@ sap.ui.define([
                 Price: parseFloat(oDialogData.Price)
             };
 
-            const fnOnPatchCompleted = (oEvent) => {
+            const aChangedFields = Object.entries(oUpdatedFields).filter(([sKey, vValue]) => {
+                const vCurrentValue = oContext.getProperty(sKey);
+
+                if (sKey === "ReleaseDate" || sKey === "DiscontinuedDate") {
+                    return !vCurrentValue || new Date(vCurrentValue).toDateString() !== new Date(vValue).toDateString();
+                }
+
+                if (sKey === "Rating" || sKey === "Price") {
+                    return Number(vCurrentValue) !== vValue;
+                }
+
+                return vCurrentValue !== vValue;
+            });
+
+            if (aChangedFields.length === 0) {
+                this.oAddProductDialog.close();
+                return;
+            }
+
+            oListBinding.attachEventOnce("patchCompleted", (oEvent) => {
                 const bSuccess = oEvent.getParameter("success");
 
                 if (bSuccess) {
@@ -470,18 +489,13 @@ sap.ui.define([
                     oListBinding.resetChanges();
                     MessageBox.error(oResourceBundle.getText("updateErrorMessage"));
                 }
-            };
-
-            oListBinding.attachEventOnce("patchCompleted", fnOnPatchCompleted);
-
-            Object.entries(oUpdatedFields).forEach(([sKey, vValue]) => {
-                oContext.setProperty(sKey, vValue);
             });
 
-            if (!oContext.hasPendingChanges()) {
-                oListBinding.detachEvent("patchCompleted", fnOnPatchCompleted);
-                this.oAddProductDialog.close();
-            }
+            aChangedFields.forEach(([sKey, vValue]) => {
+                oContext.setProperty(sKey, vValue).catch(() => {
+                    // The error is shown in the patchCompleted handler
+                });
+            });
         },
 
         onCancelProduct() {
