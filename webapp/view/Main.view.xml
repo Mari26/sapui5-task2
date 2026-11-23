@@ -77,12 +77,12 @@
                                     <ToolbarSpacer id="v2Spacer" />
                                     <Button 
                                         id="addV2Button" 
-                                        text="{i18n>addV2ButtonText}" 
+                                        text="{i18n>addProductButtonText}" 
                                         type="Accept" 
-                                        press=".onOpenAddV2Dialog" />
+                                        press=".onOpenAddDialog" />
                                     <Button 
                                         id="deleteV2Button" 
-                                        text="{i18n>deleteV2ButtonText}" 
+                                        text="{i18n>deleteButtonText}" 
                                         type="Reject" 
                                         press=".onDeleteV2Records" />
                                 </OverflowToolbar>
@@ -99,8 +99,9 @@
                                 <Column id="v2ActionsCol" hAlign="Center"><Text id="v2ActionsText" text="{i18n>columnActions}" /></Column>
                             </columns>
                             <items>
-                                <ColumnListItem id="v2ProductRow" 
-                                type="Navigation" 
+                                <ColumnListItem 
+                                    id="v2ProductRow" 
+                                    type="Navigation" 
                                     press=".onNavigateToProduct">
                                     <cells>
                                         <Text id="v2IdCell" text="{odataV2>ID}" />
@@ -118,8 +119,8 @@
                                         <ObjectNumber id="v2PriceCell" number="{odataV2>Price}" />
                                         <Button 
                                             id="v2EditBtn" 
-                                            text="{i18n>editV2ButtonText}" 
-                                            press=".onOpenEditV2Dialog" />
+                                            text="{i18n>editButtonText}" 
+                                            press=".onOpenEditDialog" />
                                     </cells>
                                 </ColumnListItem>
                             </items>
@@ -128,7 +129,22 @@
 
                     <!-- Tab 3: oData v4 Model -->
                     <IconTabFilter id="odataV4Tab" text="{i18n>tabODataV4Model}" key="odataV4">
-                        <Table id="productsV4Table" items="{odataV4>/Products}" width="auto">
+                        <Table id="productsV4Table" items="{odataV4>/Products}" width="auto" mode="MultiSelect">
+                            <headerToolbar>
+                                <OverflowToolbar id="v4TableToolbar">
+                                    <ToolbarSpacer id="v4ToolbarSpacer" />
+                                    <Button
+                                        id="addV4Btn"
+                                        text="{i18n>addProductButtonText}"
+                                        type="Accept"
+                                        press=".onOpenAddDialog" />
+                                    <Button
+                                        id="deleteV4Btn"
+                                        text="{i18n>deleteButtonText}"
+                                        type="Reject"
+                                        press=".onDeleteV4Products" />
+                                </OverflowToolbar>
+                            </headerToolbar>
                             <columns>
                                 <Column id="v4IdCol"><Text id="v4IdText" text="{i18n>columnId}" /></Column>
                                 <Column id="v4NameCol"><Text id="v4NameText" text="{i18n>columnName}" /></Column>
@@ -137,20 +153,22 @@
                                 <Column id="v4DiscDateCol"><Text id="v4DiscDateText" text="{i18n>columnDiscontinuedDate}" /></Column>
                                 <Column id="v4RatingCol" hAlign="End"><Text id="v4RatingText" text="{i18n>columnRating}" /></Column>
                                 <Column id="v4PriceCol" hAlign="End"><Text id="v4PriceText" text="{i18n>columnPrice}" /></Column>
+                                <Column id="v4ActionsCol" hAlign="Center"><Text id="v4ActionsText" text="{i18n>columnActions}" /></Column>
                             </columns>
                             <items>
-                                <ColumnListItem 
-                                id="v4ProductRow" 
-                                type="Navigation" 
-                                press=".onNavigateToProduct">
+                                <ColumnListItem id="v4ProductRow">
                                     <cells>
                                         <Text id="v4IdCell" text="{odataV4>ID}" />
                                         <Text id="v4NameCell" text="{odataV4>Name}" />
                                         <Text id="v4DescCell" text="{odataV4>Description}" />
-                                        <Text id="v4RelDateCell" text="{odataV4>ReleaseDate}" />
-                                        <Text id="v4DiscDateCell" text="{odataV4>DiscontinuedDate}" />
-                                        <ObjectNumber id="v4RatingCell" number="{odataV4>Rating}" />
-                                        <ObjectNumber id="v4PriceCell" number="{odataV4>Price}" />
+                                        <Text id="v4RelDateCell" text="{path: 'odataV4>ReleaseDate', targetType: 'any', formatter: '.formatV4Date'}" />
+                                        <Text id="v4DiscDateCell" text="{path: 'odataV4>DiscontinuedDate', targetType: 'any', formatter: '.formatV4Date'}" />
+                                        <ObjectNumber id="v4RatingCell" number="{path: 'odataV4>Rating', targetType: 'any'}" />
+                                        <ObjectNumber id="v4PriceCell" number="{path: 'odataV4>Price', targetType: 'any'}" />
+                                        <Button
+                                            id="v4EditBtn"
+                                            text="{i18n>editButtonText}"
+                                            press=".onOpenEditDialog" />
                                     </cells>
                                 </ColumnListItem>
                             </items>
